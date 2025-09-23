@@ -1,10 +1,5 @@
 import { Button } from '@/components/ui/button';
-import {
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from '@clerk/nextjs';
+import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
 
 export function Header() {
@@ -13,6 +8,27 @@ export function Header() {
       <Link href='/' className='font-bold text-lg'>
         JobQuest
       </Link>
+
+      <SignedIn>
+        <nav className='flex items-center gap-x-6'>
+          <Link
+            href='/dashboard'
+            className='text-sm font-medium hover:text-primary'
+          >
+            Dashboard
+          </Link>
+          <Link href='/jobs' className='text-sm font-medium hover:text-primary'>
+            Jobs
+          </Link>
+          <Link
+            href='/kanban'
+            className='text-sm font-medium hover:text-primary'
+          >
+            Kanban
+          </Link>
+        </nav>
+      </SignedIn>
+
       <div className='flex items-center gap-x-4'>
         <SignedOut>
           <SignInButton>
