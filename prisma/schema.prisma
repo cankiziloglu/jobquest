@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum JobStatus {
+  WISHLIST
+  APPLIED
+  INTERVIEW
+  OFFER
+  REJECTED
+}
+
+enum WorkArrangement {
+  REMOTE
+  ON_SITE
+  HYBRID
+}
+
+model Job {
+  id              String           @id @default(cuid())
+  userId          String // Clerk user ID
+  title           String
+  company         String
+  description     String?
+  location        String?
+  salary          String?
+  jobUrl          String?
+  workArrangement WorkArrangement?
+  status          JobStatus        @default(WISHLIST)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  // Relationship: one job can have multiple notes
+  notes Note[]
+
+  @@map("jobs")
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Foreign key to Job
+  jobId String
+  job   Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@map("notes")
+}
