@@ -168,21 +168,21 @@ async function seedDatabase() {
 
   try {
     // Delete existing data for this user
-    await prisma.note.deleteMany({
-      where: {
-        job: {
-          userId: userId,
-        },
-      },
-    });
+    // await prisma.note.deleteMany({
+    //   where: {
+    //     job: {
+    //       userId: userId,
+    //     },
+    //   },
+    // });
 
-    await prisma.job.deleteMany({
-      where: {
-        userId: userId,
-      },
-    });
+    // await prisma.job.deleteMany({
+    //   where: {
+    //     userId: userId,
+    //   },
+    // });
 
-    console.log('🗑️  Cleared existing data for user');
+    // console.log('🗑️  Cleared existing data for user');
 
     // Create jobs with notes
     for (const jobData of dummyJobs) {

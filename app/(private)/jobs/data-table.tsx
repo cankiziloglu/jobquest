@@ -1,5 +1,6 @@
 'use client';
 
+// Force refresh - mobile compact table
 import * as React from 'react';
 import {
   ColumnDef,
@@ -9,7 +10,6 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
@@ -54,24 +54,27 @@ export function DataTable<TData, TValue>({
   const [workArrangementFilter, setWorkArrangementFilter] =
     React.useState<string>('all');
 
-  // Filter data based on status and work arrangement
-  const filteredData = React.useMemo(() => {
-    return data.filter((job: any) => {
-      const statusMatch = statusFilter === 'all' || job.status === statusFilter;
-      const workArrangementMatch =
-        workArrangementFilter === 'all' ||
-        job.workArrangement === workArrangementFilter;
-      return statusMatch && workArrangementMatch;
-    });
-  }, [data, statusFilter, workArrangementFilter]);
+  // Apply custom filters
+  React.useEffect(() => {
+    const filters: ColumnFiltersState = [];
+
+    if (statusFilter !== 'all') {
+      filters.push({ id: 'status', value: statusFilter });
+    }
+
+    if (workArrangementFilter !== 'all') {
+      filters.push({ id: 'workArrangement', value: workArrangementFilter });
+    }
+
+    setColumnFilters(filters);
+  }, [statusFilter, workArrangementFilter]);
 
   const table = useReactTable({
-    data: filteredData,
+    data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -84,8 +87,17 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className='w-full'>
-      <div className='flex items-center justify-between py-4'>
-        <div className='flex items-center space-x-2'>
+      {/* Add Job Button - Top on mobile only */}
+      <div className='flex justify-end items-center py-4 md:hidden'>
+        <Button onClick={onAddJob}>
+          <Plus className='mr-2 h-4 w-4' />
+          Add Job
+        </Button>
+      </div>
+
+      {/* Filters and Add Job Button - Combined row on desktop */}
+      <div className='flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0 py-4'>
+        <div className='flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-2'>
           <div className='relative'>
             <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
             <Input
@@ -96,12 +108,12 @@ export function DataTable<TData, TValue>({
               onChange={(event) =>
                 table.getColumn('title')?.setFilterValue(event.target.value)
               }
-              className='pl-8 max-w-sm'
+              className='pl-8 w-full sm:max-w-sm'
             />
           </div>
 
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className='w-[180px]'>
+            <SelectTrigger className='w-full sm:w-[140px] md:w-[160px]'>
               <Filter className='mr-2 h-4 w-4' />
               <SelectValue placeholder='Status' />
             </SelectTrigger>
@@ -119,7 +131,8 @@ export function DataTable<TData, TValue>({
             value={workArrangementFilter}
             onValueChange={setWorkArrangementFilter}
           >
-            <SelectTrigger className='w-[180px]'>
+            <SelectTrigger className='w-full sm:w-[140px] md:w-[160px]'>
+              <Filter className='mr-2 h-4 w-4' />
               <SelectValue placeholder='Work Type' />
             </SelectTrigger>
             <SelectContent>
@@ -131,20 +144,26 @@ export function DataTable<TData, TValue>({
           </Select>
         </div>
 
-        <Button onClick={onAddJob} className='ml-4'>
+        {/* Add Job Button - Hidden on mobile, shown on desktop */}
+        <Button onClick={onAddJob} className='hidden md:flex'>
           <Plus className='mr-2 h-4 w-4' />
           Add Job
         </Button>
       </div>
 
-      <div className='rounded-md border'>
-        <Table>
+      <div className='rounded-md border overflow-hidden w-full'>
+        <Table className='text-xs md:text-sm w-full table-fixed'>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead
+                      key={header.id}
+                      className={`py-1 px-1 md:py-2 md:px-3 ${
+                        (header.column.columnDef.meta as any)?.className || ''
+                      }`}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -165,7 +184,12 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && 'selected'}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      className={`py-1 px-1 md:py-2 md:px-3 ${
+                        (cell.column.columnDef.meta as any)?.className || ''
+                      }`}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -178,7 +202,7 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className='h-24 text-center'
+                  className='h-24 text-center py-2 px-2 md:py-3 md:px-4'
                 >
                   No jobs found.
                 </TableCell>
@@ -186,31 +210,6 @@ export function DataTable<TData, TValue>({
             )}
           </TableBody>
         </Table>
-      </div>
-
-      <div className='flex items-center justify-end space-x-2 py-4'>
-        <div className='flex-1 text-sm text-muted-foreground'>
-          {table.getFilteredSelectedRowModel().rows.length} of{' '}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
-        </div>
-        <div className='space-x-2'>
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
       </div>
     </div>
   );

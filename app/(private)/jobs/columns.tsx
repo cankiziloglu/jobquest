@@ -1,5 +1,6 @@
 'use client';
 
+// Mobile compact columns
 import { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,7 +15,7 @@ import {
 import { Job, JobStatus, WorkArrangement, Note } from '@/lib/generated/prisma';
 import {
   ArrowUpDown,
-  MoreHorizontal,
+  MoreVertical,
   ExternalLink,
   Eye,
   Edit,
@@ -63,15 +64,25 @@ export const createColumns = (
     cell: ({ row }) => {
       const job = row.original;
       return (
-        <div className='space-y-1'>
-          <div className='font-medium'>{job.title}</div>
-          {/* Show status and work type badges below title - MOBILE ONLY */}
-          <div className='flex flex-wrap gap-1 md:hidden'>
-            <Badge className={statusColors[job.status]}>{job.status}</Badge>
+        <div className='space-y-1 min-w-0'>
+          <div className='font-medium text-xs md:text-sm truncate'>
+            {job.title}
+          </div>
+          {/* Show status and work type badges below title - ALL SCREEN SIZES */}
+          <div className='flex flex-wrap gap-1'>
+            <Badge
+              className={`text-[10px] px-1.5 py-0.5 ${
+                statusColors[job.status]
+              }`}
+            >
+              {job.status}
+            </Badge>
             {job.workArrangement && (
               <Badge
                 variant='outline'
-                className={workArrangementColors[job.workArrangement]}
+                className={`text-[10px] px-1.5 py-0.5 ${
+                  workArrangementColors[job.workArrangement]
+                }`}
               >
                 {job.workArrangement.replace('_', ' ')}
               </Badge>
@@ -79,6 +90,9 @@ export const createColumns = (
           </div>
         </div>
       );
+    },
+    meta: {
+      className: 'w-[50%] md:w-auto md:min-w-[200px]',
     },
   },
   {
@@ -97,16 +111,21 @@ export const createColumns = (
     cell: ({ row }) => {
       const job = row.original;
       return (
-        <div className='space-y-1'>
-          <div className='font-medium'>{job.company}</div>
+        <div className='space-y-1 min-w-0'>
+          <div className='font-medium text-xs md:text-sm truncate'>
+            {job.company}
+          </div>
           {/* Show location below company - MOBILE ONLY */}
           {job.location && (
-            <div className='text-xs text-muted-foreground flex items-center gap-1 md:hidden'>
+            <div className='text-[10px] text-muted-foreground flex items-center gap-1 md:hidden truncate'>
               📍 {job.location}
             </div>
           )}
         </div>
       );
+    },
+    meta: {
+      className: 'w-[35%] md:w-auto md:min-w-[150px]',
     },
   },
   {
@@ -115,7 +134,7 @@ export const createColumns = (
       return (
         <div
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          className='items-center cursor-pointer hover:text-foreground/80 hidden md:flex'
+          className='items-center cursor-pointer hover:text-foreground/80 hidden'
         >
           Status
           <ArrowUpDown className='ml-2 h-4 w-4' />
@@ -123,15 +142,10 @@ export const createColumns = (
       );
     },
     cell: ({ row }) => {
-      const status = row.getValue('status') as JobStatus;
-      return (
-        <Badge className={`${statusColors[status]} hidden md:inline-flex`}>
-          {status}
-        </Badge>
-      );
+      return null;
     },
     meta: {
-      className: 'hidden md:table-cell w-32',
+      className: 'hidden',
     },
   },
   {
@@ -140,7 +154,7 @@ export const createColumns = (
       return (
         <div
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          className='items-center cursor-pointer hover:text-foreground/80 hidden md:flex'
+          className='items-center cursor-pointer hover:text-foreground/80 hidden'
         >
           Work Type
           <ArrowUpDown className='ml-2 h-4 w-4' />
@@ -148,23 +162,10 @@ export const createColumns = (
       );
     },
     cell: ({ row }) => {
-      const workArrangement = row.getValue(
-        'workArrangement'
-      ) as WorkArrangement | null;
-      if (!workArrangement)
-        return <div className='text-muted-foreground hidden md:block'>-</div>;
-
-      return (
-        <Badge
-          variant='outline'
-          className={`${workArrangementColors[workArrangement]} hidden md:inline-flex`}
-        >
-          {workArrangement.replace('_', ' ')}
-        </Badge>
-      );
+      return null;
     },
     meta: {
-      className: 'hidden md:table-cell w-28',
+      className: 'hidden',
     },
   },
   {
@@ -172,10 +173,14 @@ export const createColumns = (
     header: () => <div className='text-left hidden md:block'>Location</div>,
     cell: ({ row }) => {
       const location = row.getValue('location') as string | null;
-      return <div className='text-sm hidden md:block'>{location || '-'}</div>;
+      return (
+        <div className='text-xs hidden md:block truncate'>
+          {location || '-'}
+        </div>
+      );
     },
     meta: {
-      className: 'hidden md:table-cell w-36',
+      className: 'hidden md:table-cell w-24',
     },
   },
   {
@@ -183,10 +188,12 @@ export const createColumns = (
     header: () => <div className='text-left hidden md:block'>Salary</div>,
     cell: ({ row }) => {
       const salary = row.getValue('salary') as string | null;
-      return <div className='text-sm hidden md:block'>{salary || '-'}</div>;
+      return (
+        <div className='text-xs hidden md:block truncate'>{salary || '-'}</div>
+      );
     },
     meta: {
-      className: 'hidden md:table-cell w-32',
+      className: 'hidden md:table-cell w-24',
     },
   },
   {
@@ -197,7 +204,7 @@ export const createColumns = (
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           className='items-center cursor-pointer hover:text-foreground/80 hidden md:flex'
         >
-          Applied Date
+          Date Applied
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </div>
       );
@@ -205,63 +212,72 @@ export const createColumns = (
     cell: ({ row }) => {
       const date = row.getValue('createdAt') as Date;
       return (
-        <div className='text-sm hidden md:block'>
-          {date.toLocaleDateString()}
+        <div className='text-xs hidden md:block truncate'>
+          {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
         </div>
       );
     },
     meta: {
-      className: 'hidden md:table-cell w-32',
+      className: 'hidden md:table-cell w-16',
     },
   },
   {
     id: 'actions',
     enableHiding: false,
+    header: () => <div className='w-full text-right'></div>,
     cell: ({ row }) => {
       const job = row.original;
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant='ghost' className='h-8 w-8 p-0'>
-              <span className='sr-only'>Open menu</span>
-              <MoreHorizontal className='h-4 w-4' />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align='end'>
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => onView(job)}>
-              <Eye className='mr-2 h-4 w-4' />
-              View details
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onEdit(job)}>
-              <Edit className='mr-2 h-4 w-4' />
-              Edit job
-            </DropdownMenuItem>
-            {job.jobUrl && (
-              <DropdownMenuItem asChild>
-                <a
-                  href={job.jobUrl}
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  className='flex items-center'
-                >
-                  <ExternalLink className='mr-2 h-4 w-4' />
-                  View job posting
-                </a>
+        <div className='flex justify-end w-full'>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant='ghost'
+                className='h-6 w-6 p-0 md:h-8 md:w-8 shrink-0'
+              >
+                <span className='sr-only'>Open menu</span>
+                <MoreVertical className='h-3 w-3 md:h-4 md:w-4' />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end'>
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => onView(job)}>
+                <Eye className='mr-2 h-4 w-4' />
+                View details
               </DropdownMenuItem>
-            )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className='text-red-600'
-              onClick={() => onDelete(job.id)}
-            >
-              <Trash2 className='mr-2 h-4 w-4' />
-              Delete job
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <DropdownMenuItem onClick={() => onEdit(job)}>
+                <Edit className='mr-2 h-4 w-4' />
+                Edit job
+              </DropdownMenuItem>
+              {job.jobUrl && (
+                <DropdownMenuItem asChild>
+                  <a
+                    href={job.jobUrl}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='flex items-center'
+                  >
+                    <ExternalLink className='mr-2 h-4 w-4' />
+                    View job posting
+                  </a>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className='text-red-600'
+                onClick={() => onDelete(job.id)}
+              >
+                <Trash2 className='mr-2 h-4 w-4' />
+                Delete job
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       );
+    },
+    meta: {
+      className: 'w-[15%] md:w-12 text-right',
     },
   },
 ];

@@ -139,15 +139,24 @@ export function JobDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[600px] max-h-[80vh] overflow-y-auto'>
+      <DialogContent className='sm:max-w-[600px] max-h-[80vh] overflow-y-auto text-sm'>
         <DialogHeader className='space-y-3'>
-          <DialogTitle className='pr-8 text-left'>{job.title}</DialogTitle>
+          <DialogTitle className='pr-8 text-left text-base'>
+            {job.title}
+          </DialogTitle>
           <div className='flex items-center justify-between'>
-            <DialogDescription className='m-0'>{job.company}</DialogDescription>
+            <DialogDescription className='m-0 text-xs'>
+              {job.company}
+            </DialogDescription>
             {job.jobUrl && (
-              <Button size='sm' variant='outline' asChild>
+              <Button
+                size='sm'
+                variant='outline'
+                asChild
+                className='text-xs h-7'
+              >
                 <a href={job.jobUrl} target='_blank' rel='noopener noreferrer'>
-                  <ExternalLink className='h-4 w-4 mr-2' />
+                  <ExternalLink className='h-3 w-3 mr-2' />
                   View Posting
                 </a>
               </Button>
@@ -158,11 +167,19 @@ export function JobDetailsDialog({
         <div className='space-y-6'>
           {/* Job Status and Details */}
           <div className='flex flex-wrap gap-2'>
-            <Badge className={statusColors[job.status]}>{job.status}</Badge>
+            <Badge
+              className={`text-[10px] px-1.5 py-0.5 ${
+                statusColors[job.status]
+              }`}
+            >
+              {job.status}
+            </Badge>
             {job.workArrangement && (
               <Badge
                 variant='outline'
-                className={workArrangementColors[job.workArrangement]}
+                className={`text-[10px] px-1.5 py-0.5 ${
+                  workArrangementColors[job.workArrangement]
+                }`}
               >
                 {job.workArrangement.replace('_', ' ')}
               </Badge>
@@ -173,28 +190,28 @@ export function JobDetailsDialog({
           <div className='grid gap-4'>
             {job.description && (
               <div>
-                <Label className='text-sm font-medium'>Description</Label>
-                <p className='text-sm text-muted-foreground mt-1'>
+                <Label className='text-xs font-medium'>Description</Label>
+                <p className='text-xs text-muted-foreground mt-1'>
                   {job.description}
                 </p>
               </div>
             )}
 
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-4 text-sm'>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-4 text-xs'>
               {job.location && (
                 <div className='flex items-center gap-2'>
-                  <MapPin className='h-4 w-4 text-muted-foreground' />
+                  <MapPin className='h-3 w-3 text-muted-foreground' />
                   <span>{job.location}</span>
                 </div>
               )}
               {job.salary && (
                 <div className='flex items-center gap-2'>
-                  <DollarSign className='h-4 w-4 text-muted-foreground' />
+                  <DollarSign className='h-3 w-3 text-muted-foreground' />
                   <span>{job.salary}</span>
                 </div>
               )}
               <div className='flex items-center gap-2'>
-                <Calendar className='h-4 w-4 text-muted-foreground' />
+                <Calendar className='h-3 w-3 text-muted-foreground' />
                 <span>Applied {job.createdAt.toLocaleDateString()}</span>
               </div>
             </div>
@@ -203,15 +220,16 @@ export function JobDetailsDialog({
           {/* Notes Section */}
           <div>
             <div className='flex items-center justify-between mb-4'>
-              <Label className='text-base font-medium'>
+              <Label className='text-sm font-medium'>
                 Notes ({notes.length})
               </Label>
               <Button
                 size='sm'
                 onClick={() => setIsAddingNote(true)}
                 disabled={isAddingNote}
+                className='text-xs h-7'
               >
-                <Plus className='h-4 w-4 mr-2' />
+                <Plus className='h-3 w-3 mr-2' />
                 Add Note
               </Button>
             </div>
@@ -220,11 +238,12 @@ export function JobDetailsDialog({
             {isAddingNote && (
               <div className='border rounded-lg p-4 mb-4 bg-card'>
                 <div className='space-y-3'>
-                  <Label>New Note</Label>
+                  <Label className='text-xs'>New Note</Label>
                   <Input
                     value={newNoteContent}
                     onChange={(e) => setNewNoteContent(e.target.value)}
                     placeholder='Enter your note...'
+                    className='text-xs h-8'
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
@@ -237,6 +256,7 @@ export function JobDetailsDialog({
                       size='sm'
                       onClick={handleAddNote}
                       disabled={loading || !newNoteContent.trim()}
+                      className='text-xs h-7'
                     >
                       Save
                     </Button>
@@ -247,6 +267,7 @@ export function JobDetailsDialog({
                         setIsAddingNote(false);
                         setNewNoteContent('');
                       }}
+                      className='text-xs h-7'
                     >
                       Cancel
                     </Button>
@@ -258,7 +279,7 @@ export function JobDetailsDialog({
             {/* Existing notes */}
             <div className='space-y-3'>
               {notes.length === 0 ? (
-                <p className='text-sm text-muted-foreground text-center py-8'>
+                <p className='text-xs text-muted-foreground text-center py-8'>
                   No notes yet. Add your first note to track progress, thoughts,
                   or reminders about this job application.
                 </p>
@@ -270,6 +291,7 @@ export function JobDetailsDialog({
                         <Input
                           value={editContent}
                           onChange={(e) => setEditContent(e.target.value)}
+                          className='text-xs h-8'
                           onKeyDown={(e) => {
                             if (e.key === 'Enter' && !e.shiftKey) {
                               e.preventDefault();
@@ -282,6 +304,7 @@ export function JobDetailsDialog({
                             size='sm'
                             onClick={() => handleEditNote(note.id)}
                             disabled={loading}
+                            className='text-xs h-7'
                           >
                             Save
                           </Button>
@@ -289,6 +312,7 @@ export function JobDetailsDialog({
                             size='sm'
                             variant='outline'
                             onClick={cancelEditing}
+                            className='text-xs h-7'
                           >
                             Cancel
                           </Button>
@@ -297,8 +321,8 @@ export function JobDetailsDialog({
                     ) : (
                       <div className='flex justify-between items-start'>
                         <div className='flex-1'>
-                          <p className='text-sm'>{note.content}</p>
-                          <p className='text-xs text-muted-foreground mt-2'>
+                          <p className='text-xs'>{note.content}</p>
+                          <p className='text-[10px] text-muted-foreground mt-2'>
                             {note.createdAt.toLocaleDateString()} at{' '}
                             {note.createdAt.toLocaleTimeString()}
                           </p>
@@ -309,6 +333,7 @@ export function JobDetailsDialog({
                             variant='ghost'
                             onClick={() => startEditingNote(note)}
                             disabled={loading}
+                            className='h-6 w-6 p-0'
                           >
                             <Edit className='h-3 w-3' />
                           </Button>
@@ -317,7 +342,7 @@ export function JobDetailsDialog({
                             variant='ghost'
                             onClick={() => handleDeleteNote(note.id)}
                             disabled={loading}
-                            className='text-red-600 hover:text-red-800'
+                            className='text-red-600 hover:text-red-800 h-6 w-6 p-0'
                           >
                             <Trash2 className='h-3 w-3' />
                           </Button>

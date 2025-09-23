@@ -110,10 +110,12 @@ export function JobDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[600px]'>
+      <DialogContent className='sm:max-w-[600px] text-sm'>
         <DialogHeader>
-          <DialogTitle>{job ? 'Edit Job' : 'Add New Job'}</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className='text-base'>
+            {job ? 'Edit Job' : 'Add New Job'}
+          </DialogTitle>
+          <DialogDescription className='text-xs'>
             {job
               ? 'Update the job application details.'
               : 'Add a new job application to track.'}
@@ -122,7 +124,7 @@ export function JobDialog({
         <form onSubmit={handleSubmit}>
           <div className='grid gap-4 py-4'>
             <div className='grid grid-cols-4 items-center gap-4'>
-              <Label htmlFor='title' className='text-right'>
+              <Label htmlFor='title' className='text-right text-xs'>
                 Job Title *
               </Label>
               <Input
@@ -131,13 +133,13 @@ export function JobDialog({
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
                 }
-                className='col-span-3'
+                className='col-span-3 text-sm h-8'
                 required
               />
             </div>
 
             <div className='grid grid-cols-4 items-center gap-4'>
-              <Label htmlFor='company' className='text-right'>
+              <Label htmlFor='company' className='text-right text-xs'>
                 Company *
               </Label>
               <Input
@@ -146,13 +148,13 @@ export function JobDialog({
                 onChange={(e) =>
                   setFormData({ ...formData, company: e.target.value })
                 }
-                className='col-span-3'
+                className='col-span-3 text-sm h-8'
                 required
               />
             </div>
 
             <div className='grid grid-cols-4 items-center gap-4'>
-              <Label htmlFor='description' className='text-right'>
+              <Label htmlFor='description' className='text-right text-xs'>
                 Description
               </Label>
               <Input
@@ -161,13 +163,13 @@ export function JobDialog({
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                className='col-span-3'
+                className='col-span-3 text-sm h-8'
                 placeholder='Brief job description...'
               />
             </div>
 
             <div className='grid grid-cols-4 items-center gap-4'>
-              <Label htmlFor='location' className='text-right'>
+              <Label htmlFor='location' className='text-right text-xs'>
                 Location
               </Label>
               <Input
@@ -176,13 +178,13 @@ export function JobDialog({
                 onChange={(e) =>
                   setFormData({ ...formData, location: e.target.value })
                 }
-                className='col-span-3'
+                className='col-span-3 text-sm h-8'
                 placeholder='e.g., San Francisco, CA'
               />
             </div>
 
             <div className='grid grid-cols-4 items-center gap-4'>
-              <Label htmlFor='salary' className='text-right'>
+              <Label htmlFor='salary' className='text-right text-xs'>
                 Salary
               </Label>
               <Input
@@ -191,13 +193,13 @@ export function JobDialog({
                 onChange={(e) =>
                   setFormData({ ...formData, salary: e.target.value })
                 }
-                className='col-span-3'
+                className='col-span-3 text-sm h-8'
                 placeholder='e.g., $120k - $150k'
               />
             </div>
 
             <div className='grid grid-cols-4 items-center gap-4'>
-              <Label htmlFor='jobUrl' className='text-right'>
+              <Label htmlFor='jobUrl' className='text-right text-xs'>
                 Job URL
               </Label>
               <Input
@@ -207,13 +209,13 @@ export function JobDialog({
                 onChange={(e) =>
                   setFormData({ ...formData, jobUrl: e.target.value })
                 }
-                className='col-span-3'
+                className='col-span-3 text-sm h-8'
                 placeholder='https://...'
               />
             </div>
 
             <div className='grid grid-cols-4 items-center gap-4'>
-              <Label htmlFor='workArrangement' className='text-right'>
+              <Label htmlFor='workArrangement' className='text-right text-xs'>
                 Work Type
               </Label>
               <Select
@@ -227,7 +229,7 @@ export function JobDialog({
                   })
                 }
               >
-                <SelectTrigger className='col-span-3'>
+                <SelectTrigger className='col-span-3 text-sm h-8'>
                   <SelectValue placeholder='Select work arrangement' />
                 </SelectTrigger>
                 <SelectContent>
@@ -241,7 +243,7 @@ export function JobDialog({
             </div>
 
             <div className='grid grid-cols-4 items-center gap-4'>
-              <Label htmlFor='status' className='text-right'>
+              <Label htmlFor='status' className='text-right text-xs'>
                 Status
               </Label>
               <Select
@@ -250,7 +252,7 @@ export function JobDialog({
                   setFormData({ ...formData, status: value as JobStatus })
                 }
               >
-                <SelectTrigger className='col-span-3'>
+                <SelectTrigger className='col-span-3 text-sm h-8'>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -269,10 +271,11 @@ export function JobDialog({
               variant='outline'
               onClick={() => onOpenChange(false)}
               disabled={loading}
+              className='text-sm h-8'
             >
               Cancel
             </Button>
-            <Button type='submit' disabled={loading}>
+            <Button type='submit' disabled={loading} className='text-sm h-8'>
               {loading ? 'Saving...' : job ? 'Update' : 'Create'}
             </Button>
           </DialogFooter>
