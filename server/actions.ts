@@ -5,7 +5,7 @@ import {
   JobStatus,
   WorkArrangement,
 } from '@/lib/generated/prisma';
-import { requireUserId } from '@/lib/auth';
+import { requireUserIdStrict } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 
 const prisma = new PrismaClient();
@@ -13,7 +13,7 @@ const prisma = new PrismaClient();
 // Job CRUD Operations
 
 export async function getJobs() {
-  const userId = await requireUserId();
+  const userId = await requireUserIdStrict();
 
   return prisma.job.findMany({
     where: { userId },
@@ -27,7 +27,7 @@ export async function getJobs() {
 }
 
 export async function getJob(id: string) {
-  const userId = await requireUserId();
+  const userId = await requireUserIdStrict();
 
   return prisma.job.findFirst({
     where: {
@@ -54,7 +54,7 @@ export async function createJob(data: {
   workArrangement?: WorkArrangement;
   status?: JobStatus;
 }) {
-  const userId = await requireUserId();
+  const userId = await requireUserIdStrict();
 
   const job = await prisma.job.create({
     data: {
@@ -83,7 +83,16 @@ export async function updateJob(
     status?: JobStatus;
   }
 ) {
-  const userId = await requireUserId();
+  const userId = await requireUserIdStrict();
+
+  // Verify job exists and belongs to user before updating
+  const existingJob = await prisma.job.findFirst({
+    where: { id, userId },
+  });
+
+  if (!existingJob) {
+    throw new Error('Job not found or access denied');
+  }
 
   const job = await prisma.job.update({
     where: {
@@ -100,7 +109,16 @@ export async function updateJob(
 }
 
 export async function deleteJob(id: string) {
-  const userId = await requireUserId();
+  const userId = await requireUserIdStrict();
+
+  // Verify job exists and belongs to user before deleting
+  const existingJob = await prisma.job.findFirst({
+    where: { id, userId },
+  });
+
+  if (!existingJob) {
+    throw new Error('Job not found or access denied');
+  }
 
   const job = await prisma.job.delete({
     where: {
@@ -118,7 +136,7 @@ export async function deleteJob(id: string) {
 // Note CRUD Operations
 
 export async function createNote(jobId: string, content: string) {
-  const userId = await requireUserId();
+  const userId = await requireUserIdStrict();
 
   // Verify the job belongs to the user
   const job = await prisma.job.findFirst({
@@ -126,7 +144,7 @@ export async function createNote(jobId: string, content: string) {
   });
 
   if (!job) {
-    throw new Error('Job not found');
+    throw new Error('Job not found or access denied');
   }
 
   const note = await prisma.note.create({
@@ -141,7 +159,7 @@ export async function createNote(jobId: string, content: string) {
 }
 
 export async function updateNote(id: string, content: string) {
-  const userId = await requireUserId();
+  const userId = await requireUserIdStrict();
 
   // Verify the note belongs to a job owned by the user
   const note = await prisma.note.findFirst({
@@ -154,7 +172,7 @@ export async function updateNote(id: string, content: string) {
   });
 
   if (!note) {
-    throw new Error('Note not found');
+    throw new Error('Note not found or access denied');
   }
 
   const updatedNote = await prisma.note.update({
@@ -167,7 +185,7 @@ export async function updateNote(id: string, content: string) {
 }
 
 export async function deleteNote(id: string) {
-  const userId = await requireUserId();
+  const userId = await requireUserIdStrict();
 
   // Verify the note belongs to a job owned by the user
   const note = await prisma.note.findFirst({
@@ -180,7 +198,7 @@ export async function deleteNote(id: string) {
   });
 
   if (!note) {
-    throw new Error('Note not found');
+    throw new Error('Note not found or access denied');
   }
 
   const deletedNote = await prisma.note.delete({
