@@ -7,6 +7,15 @@ import {
 } from '@/lib/generated/prisma';
 import { requireUserIdStrict } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
+import {
+  createJobSchema,
+  updateJobSchema,
+  createNoteSchema,
+  updateNoteSchema,
+  idSchema,
+  CreateJobInput,
+  UpdateJobInput,
+} from '@/lib/schemas';
 
 const prisma = new PrismaClient();
 
@@ -28,10 +37,11 @@ export async function getJobs() {
 
 export async function getJob(id: string) {
   const userId = await requireUserIdStrict();
+  const validatedId = idSchema.parse(id);
 
   return prisma.job.findFirst({
     where: {
-      id,
+      id: validatedId,
       userId,
     },
     include: {
@@ -44,23 +54,14 @@ export async function getJob(id: string) {
   });
 }
 
-export async function createJob(data: {
-  title: string;
-  company: string;
-  description?: string;
-  location?: string;
-  salary?: string;
-  jobUrl?: string;
-  workArrangement?: WorkArrangement;
-  status?: JobStatus;
-}) {
+export async function createJob(data: CreateJobInput) {
   const userId = await requireUserIdStrict();
+  const validatedData = createJobSchema.parse(data);
 
   const job = await prisma.job.create({
     data: {
-      ...data,
+      ...validatedData,
       userId,
-      status: data.status || JobStatus.WISHLIST,
     },
   });
 
@@ -70,24 +71,14 @@ export async function createJob(data: {
   return job;
 }
 
-export async function updateJob(
-  id: string,
-  data: {
-    title?: string;
-    company?: string;
-    description?: string;
-    location?: string;
-    salary?: string;
-    jobUrl?: string;
-    workArrangement?: WorkArrangement;
-    status?: JobStatus;
-  }
-) {
+export async function updateJob(id: string, data: UpdateJobInput) {
   const userId = await requireUserIdStrict();
+  const validatedId = idSchema.parse(id);
+  const validatedData = updateJobSchema.parse(data);
 
   // Verify job exists and belongs to user before updating
   const existingJob = await prisma.job.findFirst({
-    where: { id, userId },
+    where: { id: validatedId, userId },
   });
 
   if (!existingJob) {
@@ -96,10 +87,10 @@ export async function updateJob(
 
   const job = await prisma.job.update({
     where: {
-      id,
+      id: validatedId,
       userId,
     },
-    data,
+    data: validatedData,
   });
 
   revalidatePath('/jobs');
@@ -110,10 +101,11 @@ export async function updateJob(
 
 export async function deleteJob(id: string) {
   const userId = await requireUserIdStrict();
+  const validatedId = idSchema.parse(id);
 
   // Verify job exists and belongs to user before deleting
   const existingJob = await prisma.job.findFirst({
-    where: { id, userId },
+    where: { id: validatedId, userId },
   });
 
   if (!existingJob) {
@@ -122,7 +114,7 @@ export async function deleteJob(id: string) {
 
   const job = await prisma.job.delete({
     where: {
-      id,
+      id: validatedId,
       userId,
     },
   });
@@ -137,10 +129,11 @@ export async function deleteJob(id: string) {
 
 export async function createNote(jobId: string, content: string) {
   const userId = await requireUserIdStrict();
+  const validatedData = createNoteSchema.parse({ jobId, content });
 
   // Verify the job belongs to the user
   const job = await prisma.job.findFirst({
-    where: { id: jobId, userId },
+    where: { id: validatedData.jobId, userId },
   });
 
   if (!job) {
@@ -149,8 +142,8 @@ export async function createNote(jobId: string, content: string) {
 
   const note = await prisma.note.create({
     data: {
-      content,
-      jobId,
+      content: validatedData.content,
+      jobId: validatedData.jobId,
     },
   });
 
@@ -160,11 +153,13 @@ export async function createNote(jobId: string, content: string) {
 
 export async function updateNote(id: string, content: string) {
   const userId = await requireUserIdStrict();
+  const validatedId = idSchema.parse(id);
+  const validatedData = updateNoteSchema.parse({ content });
 
   // Verify the note belongs to a job owned by the user
   const note = await prisma.note.findFirst({
     where: {
-      id,
+      id: validatedId,
       job: {
         userId,
       },
@@ -176,8 +171,8 @@ export async function updateNote(id: string, content: string) {
   }
 
   const updatedNote = await prisma.note.update({
-    where: { id },
-    data: { content },
+    where: { id: validatedId },
+    data: { content: validatedData.content },
   });
 
   revalidatePath('/jobs');
@@ -186,11 +181,12 @@ export async function updateNote(id: string, content: string) {
 
 export async function deleteNote(id: string) {
   const userId = await requireUserIdStrict();
+  const validatedId = idSchema.parse(id);
 
   // Verify the note belongs to a job owned by the user
   const note = await prisma.note.findFirst({
     where: {
-      id,
+      id: validatedId,
       job: {
         userId,
       },
@@ -202,7 +198,7 @@ export async function deleteNote(id: string) {
   }
 
   const deletedNote = await prisma.note.delete({
-    where: { id },
+    where: { id: validatedId },
   });
 
   revalidatePath('/jobs');

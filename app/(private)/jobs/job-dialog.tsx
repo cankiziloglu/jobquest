@@ -1,6 +1,8 @@
 'use client';
 
 import * as React from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -22,6 +24,12 @@ import {
 import { Job, JobStatus, WorkArrangement, Note } from '@/lib/generated/prisma';
 import { createJob, updateJob } from '@/server/actions';
 import { useRouter } from 'next/navigation';
+import {
+  createJobSchema,
+  updateJobSchema,
+  CreateJobInput,
+  UpdateJobInput,
+} from '@/lib/schemas';
 
 type JobWithNotes = Job & { notes: Note[] };
 
@@ -38,23 +46,35 @@ export function JobDialog({
   job,
   onJobSaved,
 }: JobDialogProps) {
-  const [loading, setLoading] = React.useState(false);
   const router = useRouter();
+  const isEditing = Boolean(job);
 
-  const [formData, setFormData] = React.useState({
-    title: job?.title || '',
-    company: job?.company || '',
-    description: job?.description || '',
-    location: job?.location || '',
-    salary: job?.salary || '',
-    jobUrl: job?.jobUrl || '',
-    workArrangement: job?.workArrangement || undefined,
-    status: job?.status || JobStatus.WISHLIST,
+  const form = useForm({
+    resolver: zodResolver(createJobSchema),
+    defaultValues: {
+      title: '',
+      company: '',
+      description: '',
+      location: '',
+      salary: '',
+      jobUrl: '',
+      workArrangement: undefined,
+      status: JobStatus.WISHLIST,
+    },
   });
 
+  const {
+    handleSubmit,
+    register,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = form;
+
+  // Reset form when job changes
   React.useEffect(() => {
     if (job) {
-      setFormData({
+      form.reset({
         title: job.title,
         company: job.company,
         description: job.description || '',
@@ -65,7 +85,7 @@ export function JobDialog({
         status: job.status,
       });
     } else {
-      setFormData({
+      form.reset({
         title: '',
         company: '',
         description: '',
@@ -76,21 +96,10 @@ export function JobDialog({
         status: JobStatus.WISHLIST,
       });
     }
-  }, [job]);
+  }, [job, form]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
+  const onSubmit = async (data: any) => {
     try {
-      const data = {
-        ...formData,
-        description: formData.description || undefined,
-        location: formData.location || undefined,
-        salary: formData.salary || undefined,
-        jobUrl: formData.jobUrl || undefined,
-      };
-
       let savedJob;
       if (job) {
         savedJob = await updateJob(job.id, data);
@@ -103,10 +112,12 @@ export function JobDialog({
       router.refresh();
     } catch (error) {
       console.error('Error saving job:', error);
-    } finally {
-      setLoading(false);
+      // You could add toast notification here
     }
   };
+
+  const watchedWorkArrangement = watch('workArrangement');
+  const watchedStatus = watch('status');
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -121,148 +132,187 @@ export function JobDialog({
               : 'Add a new job application to track.'}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className='grid gap-4 py-4'>
             <div className='grid grid-cols-4 items-center gap-4'>
               <Label htmlFor='title' className='text-right text-xs'>
                 Job Title *
               </Label>
-              <Input
-                id='title'
-                value={formData.title}
-                onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
-                }
-                className='col-span-3 text-sm h-8'
-                required
-              />
+              <div className='col-span-3'>
+                <Input
+                  id='title'
+                  {...register('title')}
+                  className='text-sm h-8'
+                />
+                {errors.title && (
+                  <p className='text-xs text-red-600 mt-1'>
+                    {errors.title.message}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className='grid grid-cols-4 items-center gap-4'>
               <Label htmlFor='company' className='text-right text-xs'>
                 Company *
               </Label>
-              <Input
-                id='company'
-                value={formData.company}
-                onChange={(e) =>
-                  setFormData({ ...formData, company: e.target.value })
-                }
-                className='col-span-3 text-sm h-8'
-                required
-              />
+              <div className='col-span-3'>
+                <Input
+                  id='company'
+                  {...register('company')}
+                  className='text-sm h-8'
+                />
+                {errors.company && (
+                  <p className='text-xs text-red-600 mt-1'>
+                    {errors.company.message}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className='grid grid-cols-4 items-center gap-4'>
               <Label htmlFor='description' className='text-right text-xs'>
                 Description
               </Label>
-              <Input
-                id='description'
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                className='col-span-3 text-sm h-8'
-                placeholder='Brief job description...'
-              />
+              <div className='col-span-3'>
+                <Input
+                  id='description'
+                  {...register('description')}
+                  className='text-sm h-8'
+                  placeholder='Brief job description...'
+                />
+                {errors.description && (
+                  <p className='text-xs text-red-600 mt-1'>
+                    {errors.description.message}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className='grid grid-cols-4 items-center gap-4'>
               <Label htmlFor='location' className='text-right text-xs'>
                 Location
               </Label>
-              <Input
-                id='location'
-                value={formData.location}
-                onChange={(e) =>
-                  setFormData({ ...formData, location: e.target.value })
-                }
-                className='col-span-3 text-sm h-8'
-                placeholder='e.g., San Francisco, CA'
-              />
+              <div className='col-span-3'>
+                <Input
+                  id='location'
+                  {...register('location')}
+                  className='text-sm h-8'
+                  placeholder='e.g., San Francisco, CA'
+                />
+                {errors.location && (
+                  <p className='text-xs text-red-600 mt-1'>
+                    {errors.location.message}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className='grid grid-cols-4 items-center gap-4'>
               <Label htmlFor='salary' className='text-right text-xs'>
                 Salary
               </Label>
-              <Input
-                id='salary'
-                value={formData.salary}
-                onChange={(e) =>
-                  setFormData({ ...formData, salary: e.target.value })
-                }
-                className='col-span-3 text-sm h-8'
-                placeholder='e.g., $120k - $150k'
-              />
+              <div className='col-span-3'>
+                <Input
+                  id='salary'
+                  {...register('salary')}
+                  className='text-sm h-8'
+                  placeholder='e.g., $120k - $150k'
+                />
+                {errors.salary && (
+                  <p className='text-xs text-red-600 mt-1'>
+                    {errors.salary.message}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className='grid grid-cols-4 items-center gap-4'>
               <Label htmlFor='jobUrl' className='text-right text-xs'>
                 Job URL
               </Label>
-              <Input
-                id='jobUrl'
-                type='url'
-                value={formData.jobUrl}
-                onChange={(e) =>
-                  setFormData({ ...formData, jobUrl: e.target.value })
-                }
-                className='col-span-3 text-sm h-8'
-                placeholder='https://...'
-              />
+              <div className='col-span-3'>
+                <Input
+                  id='jobUrl'
+                  {...register('jobUrl')}
+                  className='text-sm h-8'
+                  placeholder='https://...'
+                />
+                {errors.jobUrl && (
+                  <p className='text-xs text-red-600 mt-1'>
+                    {errors.jobUrl.message}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className='grid grid-cols-4 items-center gap-4'>
               <Label htmlFor='workArrangement' className='text-right text-xs'>
                 Work Type
               </Label>
-              <Select
-                value={formData.workArrangement || ''}
-                onValueChange={(value) =>
-                  setFormData({
-                    ...formData,
-                    workArrangement: value
-                      ? (value as WorkArrangement)
-                      : undefined,
-                  })
-                }
-              >
-                <SelectTrigger className='col-span-3 text-sm h-8'>
-                  <SelectValue placeholder='Select work arrangement' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={WorkArrangement.REMOTE}>Remote</SelectItem>
-                  <SelectItem value={WorkArrangement.ON_SITE}>
-                    On Site
-                  </SelectItem>
-                  <SelectItem value={WorkArrangement.HYBRID}>Hybrid</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className='col-span-3'>
+                <Select
+                  value={watchedWorkArrangement || ''}
+                  onValueChange={(value) =>
+                    setValue(
+                      'workArrangement',
+                      value ? (value as WorkArrangement) : undefined
+                    )
+                  }
+                >
+                  <SelectTrigger className='text-sm h-8'>
+                    <SelectValue placeholder='Select work arrangement' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={WorkArrangement.REMOTE}>
+                      Remote
+                    </SelectItem>
+                    <SelectItem value={WorkArrangement.ON_SITE}>
+                      On Site
+                    </SelectItem>
+                    <SelectItem value={WorkArrangement.HYBRID}>
+                      Hybrid
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.workArrangement && (
+                  <p className='text-xs text-red-600 mt-1'>
+                    {errors.workArrangement.message}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className='grid grid-cols-4 items-center gap-4'>
               <Label htmlFor='status' className='text-right text-xs'>
                 Status
               </Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, status: value as JobStatus })
-                }
-              >
-                <SelectTrigger className='col-span-3 text-sm h-8'>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={JobStatus.WISHLIST}>Wishlist</SelectItem>
-                  <SelectItem value={JobStatus.APPLIED}>Applied</SelectItem>
-                  <SelectItem value={JobStatus.INTERVIEW}>Interview</SelectItem>
-                  <SelectItem value={JobStatus.OFFER}>Offer</SelectItem>
-                  <SelectItem value={JobStatus.REJECTED}>Rejected</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className='col-span-3'>
+                <Select
+                  value={watchedStatus}
+                  onValueChange={(value) =>
+                    setValue('status', value as JobStatus)
+                  }
+                >
+                  <SelectTrigger className='text-sm h-8'>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={JobStatus.WISHLIST}>Wishlist</SelectItem>
+                    <SelectItem value={JobStatus.APPLIED}>Applied</SelectItem>
+                    <SelectItem value={JobStatus.INTERVIEW}>
+                      Interview
+                    </SelectItem>
+                    <SelectItem value={JobStatus.OFFER}>Offer</SelectItem>
+                    <SelectItem value={JobStatus.REJECTED}>Rejected</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.status && (
+                  <p className='text-xs text-red-600 mt-1'>
+                    {errors.status.message}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
           <DialogFooter>
@@ -270,13 +320,17 @@ export function JobDialog({
               type='button'
               variant='outline'
               onClick={() => onOpenChange(false)}
-              disabled={loading}
+              disabled={isSubmitting}
               className='text-sm h-8'
             >
               Cancel
             </Button>
-            <Button type='submit' disabled={loading} className='text-sm h-8'>
-              {loading ? 'Saving...' : job ? 'Update' : 'Create'}
+            <Button
+              type='submit'
+              disabled={isSubmitting}
+              className='text-sm h-8'
+            >
+              {isSubmitting ? 'Saving...' : job ? 'Update' : 'Create'}
             </Button>
           </DialogFooter>
         </form>

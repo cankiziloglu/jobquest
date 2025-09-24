@@ -1,6 +1,8 @@
 'use client';
 
 import * as React from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -15,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Job, Note, JobStatus, WorkArrangement } from '@/lib/generated/prisma';
 import { createNote, updateNote, deleteNote } from '@/server/actions';
 import { useRouter } from 'next/navigation';
+import { updateNoteSchema } from '@/lib/schemas';
 import {
   ExternalLink,
   Plus,
@@ -40,11 +43,24 @@ export function JobDetailsDialog({
 }: JobDetailsDialogProps) {
   const [notes, setNotes] = React.useState<Note[]>(job?.notes || []);
   const [editingNote, setEditingNote] = React.useState<string | null>(null);
-  const [editContent, setEditContent] = React.useState('');
-  const [newNoteContent, setNewNoteContent] = React.useState('');
   const [isAddingNote, setIsAddingNote] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
   const router = useRouter();
+
+  // Form for adding new notes
+  const addNoteForm = useForm({
+    resolver: zodResolver(updateNoteSchema),
+    defaultValues: {
+      content: '',
+    },
+  });
+
+  // Form for editing existing notes
+  const editNoteForm = useForm({
+    resolver: zodResolver(updateNoteSchema),
+    defaultValues: {
+      content: '',
+    },
+  });
 
   React.useEffect(() => {
     if (job) {
@@ -73,48 +89,37 @@ export function JobDetailsDialog({
       'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300',
   };
 
-  const handleAddNote = async () => {
-    if (!newNoteContent.trim()) return;
-
-    setLoading(true);
+  const handleAddNote = async (data: { content: string }) => {
     try {
-      const newNote = await createNote(job.id, newNoteContent);
+      const newNote = await createNote(job.id, data.content);
       const updatedNotes = [...notes, newNote];
       setNotes(updatedNotes);
-      setNewNoteContent('');
+      addNoteForm.reset();
       setIsAddingNote(false);
       onNotesUpdated?.(job.id, updatedNotes);
     } catch (error) {
       console.error('Error creating note:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
-  const handleEditNote = async (noteId: string) => {
-    if (!editContent.trim()) return;
-
-    setLoading(true);
+  const handleEditNote = async (noteId: string, data: { content: string }) => {
     try {
-      const updatedNote = await updateNote(noteId, editContent);
+      const updatedNote = await updateNote(noteId, data.content);
       const updatedNotes = notes.map((note) =>
         note.id === noteId ? updatedNote : note
       );
       setNotes(updatedNotes);
       setEditingNote(null);
-      setEditContent('');
+      editNoteForm.reset();
       onNotesUpdated?.(job.id, updatedNotes);
     } catch (error) {
       console.error('Error updating note:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleDeleteNote = async (noteId: string) => {
     if (!confirm('Are you sure you want to delete this note?')) return;
 
-    setLoading(true);
     try {
       await deleteNote(noteId);
       const updatedNotes = notes.filter((note) => note.id !== noteId);
@@ -122,19 +127,22 @@ export function JobDetailsDialog({
       onNotesUpdated?.(job.id, updatedNotes);
     } catch (error) {
       console.error('Error deleting note:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
   const startEditingNote = (note: Note) => {
     setEditingNote(note.id);
-    setEditContent(note.content);
+    editNoteForm.reset({ content: note.content });
   };
 
   const cancelEditing = () => {
     setEditingNote(null);
-    setEditContent('');
+    editNoteForm.reset();
+  };
+
+  const cancelAddingNote = () => {
+    setIsAddingNote(false);
+    addNoteForm.reset();
   };
 
   return (
@@ -237,42 +245,51 @@ export function JobDetailsDialog({
             {/* Add new note */}
             {isAddingNote && (
               <div className='border rounded-lg p-4 mb-4 bg-card'>
-                <div className='space-y-3'>
+                <form
+                  onSubmit={addNoteForm.handleSubmit(handleAddNote)}
+                  className='space-y-3'
+                >
                   <Label className='text-xs'>New Note</Label>
-                  <Input
-                    value={newNoteContent}
-                    onChange={(e) => setNewNoteContent(e.target.value)}
-                    placeholder='Enter your note...'
-                    className='text-xs h-8'
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleAddNote();
-                      }
-                    }}
-                  />
+                  <div>
+                    <Input
+                      {...addNoteForm.register('content')}
+                      placeholder='Enter your note...'
+                      className='text-xs h-8'
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          addNoteForm.handleSubmit(handleAddNote)();
+                        }
+                      }}
+                    />
+                    {addNoteForm.formState.errors.content && (
+                      <p className='text-xs text-red-600 mt-1'>
+                        {addNoteForm.formState.errors.content.message}
+                      </p>
+                    )}
+                  </div>
                   <div className='flex gap-2'>
                     <Button
+                      type='submit'
                       size='sm'
-                      onClick={handleAddNote}
-                      disabled={loading || !newNoteContent.trim()}
+                      disabled={addNoteForm.formState.isSubmitting}
                       className='text-xs h-7'
                     >
-                      Save
+                      {addNoteForm.formState.isSubmitting
+                        ? 'Saving...'
+                        : 'Save'}
                     </Button>
                     <Button
+                      type='button'
                       size='sm'
                       variant='outline'
-                      onClick={() => {
-                        setIsAddingNote(false);
-                        setNewNoteContent('');
-                      }}
+                      onClick={cancelAddingNote}
                       className='text-xs h-7'
                     >
                       Cancel
                     </Button>
                   </div>
-                </div>
+                </form>
               </div>
             )}
 
@@ -287,28 +304,44 @@ export function JobDetailsDialog({
                 notes.map((note) => (
                   <div key={note.id} className='border rounded-lg p-4 bg-card'>
                     {editingNote === note.id ? (
-                      <div className='space-y-3'>
-                        <Input
-                          value={editContent}
-                          onChange={(e) => setEditContent(e.target.value)}
-                          className='text-xs h-8'
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                              e.preventDefault();
-                              handleEditNote(note.id);
-                            }
-                          }}
-                        />
+                      <form
+                        onSubmit={editNoteForm.handleSubmit((data) =>
+                          handleEditNote(note.id, data)
+                        )}
+                        className='space-y-3'
+                      >
+                        <div>
+                          <Input
+                            {...editNoteForm.register('content')}
+                            className='text-xs h-8'
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                editNoteForm.handleSubmit((data) =>
+                                  handleEditNote(note.id, data)
+                                )();
+                              }
+                            }}
+                          />
+                          {editNoteForm.formState.errors.content && (
+                            <p className='text-xs text-red-600 mt-1'>
+                              {editNoteForm.formState.errors.content.message}
+                            </p>
+                          )}
+                        </div>
                         <div className='flex gap-2'>
                           <Button
+                            type='submit'
                             size='sm'
-                            onClick={() => handleEditNote(note.id)}
-                            disabled={loading}
+                            disabled={editNoteForm.formState.isSubmitting}
                             className='text-xs h-7'
                           >
-                            Save
+                            {editNoteForm.formState.isSubmitting
+                              ? 'Saving...'
+                              : 'Save'}
                           </Button>
                           <Button
+                            type='button'
                             size='sm'
                             variant='outline'
                             onClick={cancelEditing}
@@ -317,7 +350,7 @@ export function JobDetailsDialog({
                             Cancel
                           </Button>
                         </div>
-                      </div>
+                      </form>
                     ) : (
                       <div className='flex justify-between items-start'>
                         <div className='flex-1'>
@@ -332,7 +365,6 @@ export function JobDetailsDialog({
                             size='sm'
                             variant='ghost'
                             onClick={() => startEditingNote(note)}
-                            disabled={loading}
                             className='h-6 w-6 p-0'
                           >
                             <Edit className='h-3 w-3' />
@@ -341,7 +373,6 @@ export function JobDetailsDialog({
                             size='sm'
                             variant='ghost'
                             onClick={() => handleDeleteNote(note.id)}
-                            disabled={loading}
                             className='text-red-600 hover:text-red-800 h-6 w-6 p-0'
                           >
                             <Trash2 className='h-3 w-3' />
