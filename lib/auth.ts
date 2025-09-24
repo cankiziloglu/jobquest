@@ -1,5 +1,5 @@
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+import { auth } from '@clerk/nextjs/server';
+import { redirect } from 'next/navigation';
 
 export async function requireUserId() {
   const { userId } = await auth();
@@ -15,7 +15,7 @@ export async function requireUserId() {
 export async function requireUserIdStrict() {
   const { userId } = await auth();
   if (!userId) {
-    throw new Error("Unauthorized: User must be authenticated");
+    throw new Error('Unauthorized: User must be authenticated');
   }
   return userId;
 }
