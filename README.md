@@ -1,36 +1,164 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# JobQuest
+
+A modern, minimalist job application tracker built for software developers. JobQuest helps you organize your job search journey with an intuitive interface, tracking applications from wishlist to offer.
+
+## Features
+
+### For Job Seekers
+
+- **Application Tracking**: Track jobs through five distinct stages:
+  - 📋 **Wishlist** - Companies and positions you're interested in
+  - 📤 **Applied** - Applications you've submitted
+  - 💬 **Interview** - Active interview processes
+  - ✅ **Offer** - Successful offers received
+  - ❌ **Rejected** - Closed opportunities
+
+- **Dual View Modes**:
+  - **Table View** - Sortable, filterable data table with advanced search
+  - **Kanban Board** - Drag-and-drop visual workflow management
+
+- **Comprehensive Job Details**:
+  - Company name and job title
+  - Location and work arrangement (Remote/On-site/Hybrid)
+  - Salary range tracking
+  - Job description and URL
+  - Application dates (created/updated timestamps)
+
+- **Notes & Context**:
+  - Attach unlimited notes to each job
+  - Track interview feedback, follow-ups, and research
+
+- **Dashboard Analytics**:
+  - Application status distribution
+  - Visual pipeline overview
+  - Quick insights into your job search progress
+
+- **Dark Mode Support**: System-aware theme switching for comfortable use
+
+## Tech Stack
+
+### Frontend
+- **Next.js** - React framework with App Router and Turbopack
+- **React** - Latest React with Server Components
+- **TypeScript** - Type-safe development
+- **Tailwind CSS** - Utility-first styling with OKLCH color space
+- **shadcn/ui** - Accessible, customizable component library (New York variant)
+- **TanStack Table** - Powerful data table with sorting/filtering
+- **React Hook Form** - Performant form management
+- **Zod** - TypeScript-first schema validation
+
+### Backend
+- **Next.js Server Actions** - Type-safe server mutations
+- **PostgreSQL** - Relational database hosted on Neon.tech
+- **Prisma** - Type-safe ORM with migrations
+- **Clerk** - Complete authentication solution with user management
+
+## Architecture Highlights
+
+### Server-First Design
+- Server Components for data fetching and initial render
+- Client Components only where interactivity is needed
+- Server Actions for all mutations with built-in revalidation
+
+### Security
+- Route-level authentication via middleware
+- User-scoped database queries (all data isolated by Clerk user ID)
+- Server-side validation for all inputs
+- Resource ownership verification on updates/deletes
+
+### Type Safety
+- End-to-end TypeScript coverage
+- Prisma-generated types for database models
+- Zod schemas for runtime validation
+- React Hook Form integration for type-safe forms
+
+### Performance
+- React Server Components reduce client bundle size
+- Automatic code splitting with App Router
+- Optimistic UI updates with revalidation
+- Turbopack for faster development builds
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18.x or later
+- pnpm (install via `npm install -g pnpm`)
+- PostgreSQL database (Neon.tech recommended)
+- Clerk account for authentication
+
+### Environment Setup
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <your-repo-url>
+cd jobquest
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+pnpm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Create a `.env` file in the root directory (use `.env.example` as reference):
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Database Setup
 
-## Learn More
+1. Generate Prisma Client:
+```bash
+npx prisma generate
+```
 
-To learn more about Next.js, take a look at the following resources:
+2. Run database migrations:
+```bash
+npx prisma migrate dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. (Optional) Seed sample data:
+```bash
+pnpm seed
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. (Optional) View database in Prisma Studio:
+```bash
+npx prisma studio
+```
 
-## Deploy on Vercel
+### Development
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Start the development server with Turbopack:
+```bash
+pnpm dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Production Build
+
+```bash
+pnpm build
+pnpm start
+```
+
+## Authentication Flow
+
+1. Unauthenticated users land on public homepage
+2. Clerk handles sign-up/sign-in with email or OAuth providers
+3. Middleware protects `/jobs`, `/kanban`, `/dashboard` routes
+4. All database queries automatically scoped to authenticated user
+5. User data completely isolated - no cross-user data access
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit issues or pull requests.
+
+## License
+
+MIT License - feel free to use this project for your own job search or as a portfolio piece.
+
+---
+For deployed version please visit [https://jobquest.cankiziloglu.com](https://jobquest.cankiziloglu.com)
+
+---
+
+**Built with** Next.js, React, TypeScript, Tailwind CSS, Prisma, and Clerk • **Deployed on** Vercel
