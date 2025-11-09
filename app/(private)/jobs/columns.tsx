@@ -20,6 +20,7 @@ import {
   Eye,
   Edit,
   Trash2,
+  MapPin,
 } from 'lucide-react';
 
 export type JobWithNotes = Job & { notes: Note[] };
@@ -118,7 +119,8 @@ export const createColumns = (
           {/* Show location below company - MOBILE ONLY */}
           {job.location && (
             <div className='text-[10px] text-muted-foreground flex items-center gap-1 md:hidden truncate'>
-              📍 {job.location}
+              <MapPin className='h-3 w-3 shrink-0' />
+              {job.location}
             </div>
           )}
         </div>

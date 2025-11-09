@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { createColumns, JobWithNotes } from './columns';
-import { DataTable } from './data-table';
-import { JobDialog } from './job-dialog';
-import { JobDetailsDialog } from './job-details-dialog';
-import { deleteJob } from '@/server/actions';
-import { Job, Note } from '@/lib/generated/prisma';
-import { useRouter } from 'next/navigation';
+import * as React from "react";
+import { createColumns, JobWithNotes } from "./columns";
+import { DataTable } from "./data-table";
+import { JobDialog } from "./job-dialog";
+import { JobDetailsDialog } from "./job-details-dialog";
+import { deleteJob } from "@/server/actions";
+import { Job, Note } from "@/lib/generated/prisma";
+import { useRouter } from "next/navigation";
 
 interface JobsPageProps {
   initialJobs: JobWithNotes[];
@@ -29,7 +29,7 @@ export default function JobsClient({ initialJobs }: JobsPageProps) {
   const handleViewJob = async (job: JobWithNotes) => {
     // Always refetch the job with latest notes when opening details
     try {
-      const { getJob } = await import('@/server/actions');
+      const { getJob } = await import("@/server/actions");
       const latestJob = await getJob(job.id);
       if (latestJob) {
         setViewingJob(latestJob);
@@ -37,7 +37,7 @@ export default function JobsClient({ initialJobs }: JobsPageProps) {
         setViewingJob(job);
       }
     } catch (error) {
-      console.error('Error fetching latest job details:', error);
+      console.error("Error fetching latest job details:", error);
       setViewingJob(job);
     }
     setDetailsDialogOpen(true);
@@ -49,14 +49,14 @@ export default function JobsClient({ initialJobs }: JobsPageProps) {
   };
 
   const handleDeleteJob = async (jobId: string) => {
-    if (!confirm('Are you sure you want to delete this job?')) return;
+    if (!confirm("Are you sure you want to delete this job?")) return;
 
     try {
       await deleteJob(jobId);
       setJobs(jobs.filter((job) => job.id !== jobId));
       router.refresh();
     } catch (error) {
-      console.error('Error deleting job:', error);
+      console.error("Error deleting job:", error);
     }
   };
 
@@ -79,8 +79,8 @@ export default function JobsClient({ initialJobs }: JobsPageProps) {
   const handleNotesUpdated = (jobId: string, updatedNotes: Note[]) => {
     setJobs(
       jobs.map((job) =>
-        job.id === jobId ? { ...job, notes: updatedNotes } : job
-      )
+        job.id === jobId ? { ...job, notes: updatedNotes } : job,
+      ),
     );
     // Also update the viewing job if it's the same job
     if (viewingJob?.id === jobId) {
@@ -104,14 +104,14 @@ export default function JobsClient({ initialJobs }: JobsPageProps) {
 
   const columns = React.useMemo(
     () => createColumns(handleViewJob, handleEditJob, handleDeleteJob),
-    []
+    [],
   );
 
   return (
-    <div className='container mx-auto py-8 px-4 md:px-6 lg:px-8'>
-      <div className='mb-8'>
-        <h1 className='text-3xl font-bold'>Job Applications</h1>
-        <p className='text-muted-foreground mt-2'>
+    <div className="container mx-auto py-8 px-4 md:px-6 lg:px-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold">Job Applications</h1>
+        <p className="text-muted-foreground mt-2">
           Track and manage your job applications in one place.
         </p>
       </div>
@@ -130,6 +130,10 @@ export default function JobsClient({ initialJobs }: JobsPageProps) {
         onOpenChange={handleDetailsDialogClose}
         job={viewingJob}
         onNotesUpdated={handleNotesUpdated}
+        onEditJob={(job) => {
+          setDetailsDialogOpen(false);
+          handleEditJob(job);
+        }}
       />
     </div>
   );

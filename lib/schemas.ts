@@ -38,55 +38,52 @@ export const createJobSchema = z.object({
     .transform((val) => (val === '' ? undefined : val)),
   jobUrl: urlSchema,
   workArrangement: z
-    .enum(WorkArrangement)
+    .nativeEnum(WorkArrangement)
     .optional()
     .or(z.literal(''))
     .transform((val) => (val === '' ? undefined : val)),
-  status: z.enum(JobStatus).default(JobStatus.WISHLIST),
+  status: z.nativeEnum(JobStatus).default(JobStatus.WISHLIST),
 });
 
-export const updateJobSchema = z.object({
-  title: z
-    .string()
-    .min(1, 'Job title is required')
-    .max(200, 'Job title must be under 200 characters')
-    .trim()
-    .optional(),
-  company: z
-    .string()
-    .min(1, 'Company name is required')
-    .max(200, 'Company name must be under 200 characters')
-    .trim()
-    .optional(),
-  description: z
-    .string()
-    .max(2000, 'Description must be under 2000 characters')
-    .trim()
-    .optional()
-    .or(z.literal(''))
-    .transform((val) => (val === '' ? undefined : val)),
-  location: z
-    .string()
-    .max(100, 'Location must be under 100 characters')
-    .trim()
-    .optional()
-    .or(z.literal(''))
-    .transform((val) => (val === '' ? undefined : val)),
-  salary: z
-    .string()
-    .max(100, 'Salary must be under 100 characters')
-    .trim()
-    .optional()
-    .or(z.literal(''))
-    .transform((val) => (val === '' ? undefined : val)),
-  jobUrl: urlSchema,
-  workArrangement: z
-    .enum(WorkArrangement)
-    .optional()
-    .or(z.literal(''))
-    .transform((val) => (val === '' ? undefined : val)),
-  status: z.enum(JobStatus).optional(),
-});
+export const updateJobSchema = z
+  .object({
+    title: z
+      .string()
+      .min(1, 'Job title is required')
+      .max(200, 'Job title must be under 200 characters')
+      .trim(),
+    company: z
+      .string()
+      .min(1, 'Company name is required')
+      .max(200, 'Company name must be under 200 characters')
+      .trim(),
+    description: z
+      .string()
+      .max(2000, 'Description must be under 2000 characters')
+      .trim()
+      .or(z.literal(''))
+      .transform((val) => (val === '' ? undefined : val)),
+    location: z
+      .string()
+      .max(100, 'Location must be under 100 characters')
+      .trim()
+      .or(z.literal(''))
+      .transform((val) => (val === '' ? undefined : val)),
+    salary: z
+      .string()
+      .max(100, 'Salary must be under 100 characters')
+      .trim()
+      .or(z.literal(''))
+      .transform((val) => (val === '' ? undefined : val)),
+    jobUrl: urlSchema,
+    workArrangement: z
+      .nativeEnum(WorkArrangement)
+      .or(z.literal(''))
+      .transform((val) => (val === '' ? undefined : val)),
+    status: z.nativeEnum(JobStatus),
+  })
+  .partial()
+  .passthrough();
 
 // Note validation schemas
 export const createNoteSchema = z.object({

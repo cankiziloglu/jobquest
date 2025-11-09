@@ -1,20 +1,17 @@
 import { requireUserId } from '@/lib/auth';
+import { getJobs } from '@/server/actions';
+import KanbanClient from './kanban-client';
 
 export default async function Kanban() {
   // Ensure user is authenticated before rendering the page
   await requireUserId();
 
+  // Fetch jobs for the authenticated user
+  const jobs = await getJobs();
+
   return (
-    <div className='container mx-auto py-8'>
-      <h1 className='text-3xl font-bold mb-6'>Kanban Board</h1>
-      <p className='text-muted-foreground'>
-        Drag and drop your job applications through different stages.
-      </p>
-      <div className='mt-8 p-8 border rounded-lg bg-card'>
-        <p className='text-center text-muted-foreground'>
-          Kanban board coming soon...
-        </p>
-      </div>
+    <div className='container mx-auto py-8 px-4 md:px-6 lg:px-8'>
+      <KanbanClient initialJobs={jobs} />
     </div>
   );
 }

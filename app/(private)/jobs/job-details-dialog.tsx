@@ -16,7 +16,6 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Job, Note, JobStatus, WorkArrangement } from '@/lib/generated/prisma';
 import { createNote, updateNote, deleteNote } from '@/server/actions';
-import { useRouter } from 'next/navigation';
 import { updateNoteSchema } from '@/lib/schemas';
 import {
   ExternalLink,
@@ -33,6 +32,7 @@ interface JobDetailsDialogProps {
   onOpenChange: (open: boolean) => void;
   job: (Job & { notes: Note[] }) | null;
   onNotesUpdated?: (jobId: string, notes: Note[]) => void;
+  onEditJob?: (job: Job & { notes: Note[] }) => void;
 }
 
 export function JobDetailsDialog({
@@ -40,11 +40,11 @@ export function JobDetailsDialog({
   onOpenChange,
   job,
   onNotesUpdated,
+  onEditJob,
 }: JobDetailsDialogProps) {
   const [notes, setNotes] = React.useState<Note[]>(job?.notes || []);
   const [editingNote, setEditingNote] = React.useState<string | null>(null);
   const [isAddingNote, setIsAddingNote] = React.useState(false);
-  const router = useRouter();
 
   // Form for adding new notes
   const addNoteForm = useForm({
@@ -156,19 +156,32 @@ export function JobDetailsDialog({
             <DialogDescription className='m-0 text-xs'>
               {job.company}
             </DialogDescription>
-            {job.jobUrl && (
-              <Button
-                size='sm'
-                variant='outline'
-                asChild
-                className='text-xs h-7'
-              >
-                <a href={job.jobUrl} target='_blank' rel='noopener noreferrer'>
-                  <ExternalLink className='h-3 w-3 mr-2' />
-                  View Posting
-                </a>
-              </Button>
-            )}
+            <div className='flex gap-2'>
+              {onEditJob && (
+                <Button
+                  size='sm'
+                  variant='outline'
+                  onClick={() => onEditJob(job)}
+                  className='text-xs h-7'
+                >
+                  <Edit className='h-3 w-3 mr-2' />
+                  Edit Job
+                </Button>
+              )}
+              {job.jobUrl && (
+                <Button
+                  size='sm'
+                  variant='outline'
+                  asChild
+                  className='text-xs h-7'
+                >
+                  <a href={job.jobUrl} target='_blank' rel='noopener noreferrer'>
+                    <ExternalLink className='h-3 w-3 mr-2' />
+                    View Posting
+                  </a>
+                </Button>
+              )}
+            </div>
           </div>
         </DialogHeader>
 
