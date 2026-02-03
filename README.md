@@ -38,6 +38,7 @@ A modern, minimalist job application tracker built for software developers. JobQ
 ## Tech Stack
 
 ### Frontend
+
 - **Next.js** - React framework with App Router and Turbopack
 - **React** - Latest React with Server Components
 - **TypeScript** - Type-safe development
@@ -48,6 +49,7 @@ A modern, minimalist job application tracker built for software developers. JobQ
 - **Zod** - TypeScript-first schema validation
 
 ### Backend
+
 - **Next.js Server Actions** - Type-safe server mutations
 - **PostgreSQL** - Relational database hosted on Neon.tech
 - **Prisma** - Type-safe ORM with migrations
@@ -56,23 +58,27 @@ A modern, minimalist job application tracker built for software developers. JobQ
 ## Architecture Highlights
 
 ### Server-First Design
+
 - Server Components for data fetching and initial render
 - Client Components only where interactivity is needed
 - Server Actions for all mutations with built-in revalidation
 
 ### Security
+
 - Route-level authentication via middleware
 - User-scoped database queries (all data isolated by Clerk user ID)
 - Server-side validation for all inputs
 - Resource ownership verification on updates/deletes
 
 ### Type Safety
+
 - End-to-end TypeScript coverage
 - Prisma-generated types for database models
 - Zod schemas for runtime validation
 - React Hook Form integration for type-safe forms
 
 ### Performance
+
 - React Server Components reduce client bundle size
 - Automatic code splitting with App Router
 - Optimistic UI updates with revalidation
@@ -90,12 +96,14 @@ A modern, minimalist job application tracker built for software developers. JobQ
 ### Environment Setup
 
 1. Clone the repository:
+
 ```bash
 git clone <your-repo-url>
 cd jobquest
 ```
 
 2. Install dependencies:
+
 ```bash
 pnpm install
 ```
@@ -105,21 +113,25 @@ pnpm install
 ### Database Setup
 
 1. Generate Prisma Client:
+
 ```bash
 npx prisma generate
 ```
 
 2. Run database migrations:
+
 ```bash
 npx prisma migrate dev
 ```
 
 3. (Optional) Seed sample data:
+
 ```bash
 pnpm seed
 ```
 
 4. (Optional) View database in Prisma Studio:
+
 ```bash
 npx prisma studio
 ```
@@ -127,6 +139,7 @@ npx prisma studio
 ### Development
 
 Start the development server with Turbopack:
+
 ```bash
 pnpm dev
 ```
@@ -157,7 +170,8 @@ Contributions are welcome! Please feel free to submit issues or pull requests.
 MIT License - feel free to use this project for your own job search or as a portfolio piece.
 
 ---
-For deployed version please visit [https://jobquest.cankiziloglu.com](https://jobquest.cankiziloglu.com)
+
+For deployed version please visit [https://jobquest.cgk.dev](https://jobquest.cgk.dev)
 
 ---
 
