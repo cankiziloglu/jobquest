@@ -198,6 +198,22 @@ One-time setup:
    `cgk.dev` zone (Clerk dashboard → Domains): `clerk`, `accounts`, `clkmail`,
    `clk._domainkey`, `clk2._domainkey` — all **DNS only** (not proxied).
 
+### Auto-deploy (Cloudflare Workers Builds)
+
+Every push to `main` is built and deployed by Cloudflare (Workers & Pages → `jobquest` →
+Settings → Builds), configured as:
+
+| Setting | Value |
+|---|---|
+| Repository / production branch | `cankiziloglu/jobquest` / `main` |
+| Build command | *(empty)* |
+| Deploy command | `pnpm cf:deploy` |
+| Non-production branch builds | Disabled |
+| Build variables | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` (pk_live…), `NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in`, `NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up`, `NODE_VERSION=22` |
+
+Runtime secrets (`DATABASE_URL`, `CLERK_SECRET_KEY`) live on the Worker and are not needed at build time.
+Database migrations are not run automatically: apply new ones with `pnpm db:migrate` before merging.
+
 Health check: `GET /api/health` returns `{ "ok": true, "db": "up" }`.
 
 > `middleware.ts` is intentionally kept instead of Next 16's `proxy.ts`: OpenNext doesn't
