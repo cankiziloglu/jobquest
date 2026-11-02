@@ -16,6 +16,8 @@
     }
   ],
   "observability": { "enabled": true },
+  // Custom domain (the production Clerk instance is bound to jobquest.cgk.dev)
+  "routes": [{ "pattern": "jobquest.cgk.dev", "custom_domain": true }],
   // Public (non-secret) runtime vars. Secrets (DATABASE_URL, CLERK_SECRET_KEY)
   // are set with `wrangler secret put` — see README.
   "vars": {

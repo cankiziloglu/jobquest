@@ -193,7 +193,10 @@ One-time setup:
    ```
 3. `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` is inlined at build time, so it must be in the
    environment (or `.env`) when running `pnpm cf:deploy`.
-4. In the Clerk dashboard, add the `*.workers.dev` (or custom) domain for production instances.
+4. The Worker is served at `jobquest.cgk.dev` (custom domain in `wrangler.jsonc`). The
+   production Clerk instance is bound to that domain and needs its DNS records in the
+   `cgk.dev` zone (Clerk dashboard → Domains): `clerk`, `accounts`, `clkmail`,
+   `clk._domainkey`, `clk2._domainkey` — all **DNS only** (not proxied).
 
 Health check: `GET /api/health` returns `{ "ok": true, "db": "up" }`.
 
