@@ -1,4 +1,4 @@
-import { Job, Note, JobStatus, WorkArrangement } from './generated/prisma';
+import { Job, Note, JobStatus, WorkArrangement } from '@prisma/client';
 
 // Re-export Prisma types for easy use throughout the app
 export type { Job, Note, JobStatus, WorkArrangement };

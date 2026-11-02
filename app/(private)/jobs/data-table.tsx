@@ -1,18 +1,15 @@
 'use client';
 
-// Force refresh - mobile compact table
 import * as React from 'react';
-import {
+import { useTable } from '@tanstack/react-table';
+import type {
   ColumnDef,
   ColumnFiltersState,
+  RowData,
   SortingState,
-  VisibilityState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel,
-  useReactTable,
+  ColumnVisibilityState,
 } from '@tanstack/react-table';
+import { jobTableFeatures, type JobTableFeatures } from './table-features';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -30,26 +27,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { JobStatus, WorkArrangement } from '@/lib/generated/prisma';
+import { JobStatus, WorkArrangement } from '@prisma/client';
 import { Search, Filter, Plus } from 'lucide-react';
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+interface DataTableProps<TData extends RowData> {
+  columns: ColumnDef<JobTableFeatures, TData>[];
   data: TData[];
   onAddJob?: () => void;
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends RowData>({
   columns,
   data,
   onAddJob,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TData>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+    React.useState<ColumnVisibilityState>({});
   const [statusFilter, setStatusFilter] = React.useState<string>('all');
   const [workArrangementFilter, setWorkArrangementFilter] =
     React.useState<string>('all');
@@ -69,14 +66,12 @@ export function DataTable<TData, TValue>({
     setColumnFilters(filters);
   }, [statusFilter, workArrangementFilter]);
 
-  const table = useReactTable({
+  const table = useTable({
+    features: jobTableFeatures,
     data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     state: {
       sorting,
@@ -161,15 +156,12 @@ export function DataTable<TData, TValue>({
                     <TableHead
                       key={header.id}
                       className={`py-1 px-1 md:py-2 md:px-3 ${
-                        (header.column.columnDef.meta as any)?.className || ''
+                        header.column.columnDef.meta?.className || ''
                       }`}
                     >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                      {header.isPlaceholder ? null : (
+                        <table.FlexRender header={header} />
+                      )}
                     </TableHead>
                   );
                 })}
@@ -179,21 +171,15 @@ export function DataTable<TData, TValue>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                >
+                <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
                       className={`py-1 px-1 md:py-2 md:px-3 ${
-                        (cell.column.columnDef.meta as any)?.className || ''
+                        cell.column.columnDef.meta?.className || ''
                       }`}
                     >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                      <table.FlexRender cell={cell} />
                     </TableCell>
                   ))}
                 </TableRow>

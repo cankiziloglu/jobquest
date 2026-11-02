@@ -1,12 +1,17 @@
+import { PrismaPg } from '@prisma/adapter-pg';
 import {
   PrismaClient,
   JobStatus,
   WorkArrangement,
-} from '../lib/generated/prisma';
+} from '@prisma/client';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL! }),
+});
 
-const userId = 'user_333Fo9GcZmoagJuBYlW0MRmfWXg';
+// Clerk user ID to own the seeded jobs, e.g. SEED_USER_ID=user_abc pnpm seed
+const userId = process.env.SEED_USER_ID ?? '';
+if (!userId) throw new Error('SEED_USER_ID must be set to a Clerk user ID');
 
 const dummyJobs = [
   {

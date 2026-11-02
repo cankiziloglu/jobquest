@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { SignInButton, SignUpButton, SignedOut } from '@clerk/nextjs';
+import { SignInButton, SignUpButton } from '@clerk/nextjs';
 import {
   CheckCircle,
   Kanban,

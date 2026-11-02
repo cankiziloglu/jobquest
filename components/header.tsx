@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+import { Show, SignInButton, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
 
 export function Header() {
@@ -9,7 +9,7 @@ export function Header() {
         JobQuest
       </Link>
 
-      <SignedIn>
+      <Show when='signed-in'>
         <nav className='flex items-center gap-x-6'>
           <Link
             href='/dashboard'
@@ -27,17 +27,17 @@ export function Header() {
             Kanban
           </Link>
         </nav>
-      </SignedIn>
+      </Show>
 
       <div className='flex items-center gap-x-4'>
-        <SignedOut>
+        <Show when='signed-out'>
           <SignInButton>
             <Button variant='ghost'>Sign in</Button>
           </SignInButton>
-        </SignedOut>
-        <SignedIn>
+        </Show>
+        <Show when='signed-in'>
           <UserButton />
-        </SignedIn>
+        </Show>
       </div>
     </header>
   );

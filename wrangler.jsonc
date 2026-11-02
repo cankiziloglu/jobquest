@@ -1,0 +1,27 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "jobquest",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-10-15",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      // Self-reference binding used by OpenNext; must match "name"
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "jobquest"
+    }
+  ],
+  "observability": { "enabled": true },
+  // Custom domain (the production Clerk instance is bound to jobquest.cgk.dev)
+  "routes": [{ "pattern": "jobquest.cgk.dev", "custom_domain": true }],
+  // Public (non-secret) runtime vars. Secrets (DATABASE_URL, CLERK_SECRET_KEY)
+  // are set with `wrangler secret put` — see README.
+  "vars": {
+    "NEXT_PUBLIC_CLERK_SIGN_IN_URL": "/sign-in",
+    "NEXT_PUBLIC_CLERK_SIGN_UP_URL": "/sign-up"
+  }
+}

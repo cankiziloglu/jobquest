@@ -1,3 +1,6 @@
+// Kept as middleware.ts (Edge runtime) rather than Next 16's proxy.ts (Node.js
+// runtime): OpenNext's Cloudflare adapter doesn't officially support Node.js
+// middleware yet. See https://opennext.js.org/cloudflare
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 const isProtectedRoute = createRouteMatcher([

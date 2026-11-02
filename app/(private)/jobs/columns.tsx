@@ -1,7 +1,8 @@
 'use client';
 
 // Mobile compact columns
-import { ColumnDef } from '@tanstack/react-table';
+import type { ColumnDef } from '@tanstack/react-table';
+import type { JobTableFeatures } from './table-features';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Job, JobStatus, WorkArrangement, Note } from '@/lib/generated/prisma';
+import { Job, JobStatus, WorkArrangement, Note } from '@prisma/client';
 import {
   ArrowUpDown,
   MoreVertical,
@@ -48,7 +49,7 @@ export const createColumns = (
   onView: (job: JobWithNotes) => void,
   onEdit: (job: JobWithNotes) => void,
   onDelete: (jobId: string) => void
-): ColumnDef<JobWithNotes>[] => [
+): ColumnDef<JobTableFeatures, JobWithNotes>[] => [
   {
     accessorKey: 'title',
     header: ({ column }) => {

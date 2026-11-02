@@ -1,17 +1,17 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+// prisma-client-js (generated into node_modules) is used deliberately: the
+// @prisma/client package resolves a workerd-specific build via export
+// conditions, which OpenNext relies on for Cloudflare Workers, while Node.js
+// (dev, tests) gets the regular build.
 generator client {
   provider = "prisma-client-js"
-  output   = "../lib/generated/prisma"
 }
 
+// Connection URL is configured in prisma.config.ts
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum JobStatus {

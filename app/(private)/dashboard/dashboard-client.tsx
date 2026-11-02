@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Job, JobStatus } from '@/lib/generated/prisma';
+import { Job, JobStatus } from '@prisma/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {

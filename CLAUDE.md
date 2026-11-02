@@ -7,13 +7,15 @@ JobQuest is a minimalist job application tracker for software developers. Users 
 
 ## Tech Stack
 
-- **Framework**: Next.js 15.5.3 with App Router + Turbopack
-- **React**: 19.1.0 with TypeScript 5.x
+- **Framework**: Next.js 16 with App Router + Turbopack
+- **React**: 19.3 with TypeScript 7
 - **Styling**: Tailwind CSS 4.x + shadcn/ui (New York variant)
 - **Forms**: React Hook Form + Zod validation
-- **Database**: PostgreSQL (Neon.tech) via Prisma 6.16.2
-- **Authentication**: Clerk 6.32.0
-- **Tables**: TanStack Table 8.21.3
+- **Database**: PostgreSQL (Neon.tech) via Prisma 7 + `@prisma/adapter-pg`
+- **Authentication**: Clerk 7 (Core 3: use `<Show when='signed-in'>`, not `SignedIn`/`SignedOut`)
+- **Tables**: TanStack Table 9 (`useTable` + `tableFeatures` in `app/(private)/jobs/table-features.ts`)
+- **Hosting**: Cloudflare Workers via `@opennextjs/cloudflare`
+- **Testing**: Vitest (unit + integration), Playwright (e2e)
 - **Package Manager**: pnpm
 
 ## Architecture
@@ -29,13 +31,13 @@ JobQuest is a minimalist job application tracker for software developers. Users 
   - `auth.ts` - `requireUserId()` and `requireUserIdStrict()` helpers
   - `schemas.ts` - Zod validation schemas
   - `utils.ts` - `cn()` utility for className merging
-  - `generated/prisma/` - Custom Prisma client output path
+  - `db.ts` - `getDb()` Prisma client (per-request on Workers, singleton on Node)
 - `/prisma/schema.prisma` - Database schema
 - `/scripts` - Seed and verification scripts
 
 ### Authentication
 
-- **Middleware** (`middleware.ts`) protects routes: `/jobs`, `/kanban`, `/dashboard`
+- **Middleware** (`middleware.ts`, kept instead of `proxy.ts` for OpenNext compatibility) protects routes: `/jobs`, `/kanban`, `/dashboard`
 - **Auth Helpers** (`lib/auth.ts`):
   - `requireUserId()` - Redirects to sign-in if not authenticated
   - `requireUserIdStrict()` - Throws error if not authenticated (use in server actions)
@@ -53,7 +55,7 @@ JobQuest is a minimalist job application tracker for software developers. Users 
 - Foreign key `jobId` with cascade delete
 - Simple `content` field
 
-**Import Prisma client from**: `@/lib/generated/prisma` (custom output path)
+**Import Prisma types/enums from**: `@prisma/client`. Get a client via `getDb()` from `@/lib/db` — never `new PrismaClient()` in app code (Workers can't share sockets across requests). The `prisma-client-js` generator (no custom output) is deliberate: OpenNext needs `@prisma/client`'s `workerd` export condition.
 
 ### Server Actions Pattern
 
@@ -105,7 +107,15 @@ npx prisma migrate dev --name <name>  # Create and apply migration
 npx prisma studio     # Open database GUI
 pnpm seed             # Seed database with sample data
 
-# Note: No lint/test scripts configured
+# Tests
+pnpm test:unit        # Vitest, jsdom
+pnpm test:db:push     # push schema to test DB (.env.test)
+pnpm test:integration # server actions vs real Postgres
+pnpm test:e2e         # Playwright (needs Clerk dev keys in .env.test)
+
+# Cloudflare
+pnpm cf:preview       # build + run in local workerd
+pnpm cf:deploy        # build + deploy to Workers
 ```
 
 ## When Adding Features
@@ -113,8 +123,7 @@ pnpm seed             # Seed database with sample data
 1. **New protected routes**: Add pattern to `middleware.ts` `isProtectedRoute` matcher
 2. **Database changes**:
    - Update `prisma/schema.prisma`
-   - Run `npx prisma migrate dev --name <description>`
-   - Run `npx prisma generate`
+   - Run `npx prisma migrate dev --name <description>` (regenerates the client)
 3. **New server actions**: Add to `server/actions.ts` with `requireUserIdStrict()` auth check
 4. **New forms**:
    - Create Zod schema in `lib/schemas.ts`
