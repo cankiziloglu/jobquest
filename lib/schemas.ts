@@ -49,14 +49,14 @@ export const updateJobSchema = z
   .object({
     title: z
       .string()
+      .trim()
       .min(1, 'Job title is required')
-      .max(200, 'Job title must be under 200 characters')
-      .trim(),
+      .max(200, 'Job title must be under 200 characters'),
     company: z
       .string()
+      .trim()
       .min(1, 'Company name is required')
-      .max(200, 'Company name must be under 200 characters')
-      .trim(),
+      .max(200, 'Company name must be under 200 characters'),
     description: z
       .string()
       .max(2000, 'Description must be under 2000 characters')
@@ -82,25 +82,25 @@ export const updateJobSchema = z
       .transform((val) => (val === '' ? undefined : val)),
     status: z.nativeEnum(JobStatus),
   })
-  .partial()
-  .passthrough();
+  // Unknown keys (e.g. userId, id) are stripped so clients can't overwrite them
+  .partial();
 
 // Note validation schemas
 export const createNoteSchema = z.object({
   content: z
     .string()
+    .trim()
     .min(1, 'Note content cannot be empty')
-    .max(5000, 'Note content must be under 5000 characters')
-    .trim(),
+    .max(5000, 'Note content must be under 5000 characters'),
   jobId: z.cuid('Invalid job ID'),
 });
 
 export const updateNoteSchema = z.object({
   content: z
     .string()
+    .trim()
     .min(1, 'Note content cannot be empty')
-    .max(5000, 'Note content must be under 5000 characters')
-    .trim(),
+    .max(5000, 'Note content must be under 5000 characters'),
 });
 
 // ID validation schema for operations requiring valid CUIDs (used by Prisma @default(cuid()))

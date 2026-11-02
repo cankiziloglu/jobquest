@@ -72,53 +72,31 @@ export async function createJob(data: CreateJobInput) {
 }
 
 export async function updateJob(id: string, data: UpdateJobInput) {
-  try {
-    const userId = await requireUserIdStrict();
-    const validatedId = idSchema.parse(id);
+  const userId = await requireUserIdStrict();
+  const validatedId = idSchema.parse(id);
+  const validatedData = updateJobSchema.parse(data);
 
-    console.log('[updateJob] Received data:', data);
-    console.log('[updateJob] Data keys:', Object.keys(data));
+  // Verify job exists and belongs to user before updating
+  const existingJob = await prisma.job.findFirst({
+    where: { id: validatedId, userId },
+  });
 
-    // Verify job exists and belongs to user before updating
-    const existingJob = await prisma.job.findFirst({
-      where: { id: validatedId, userId },
-    });
-
-    if (!existingJob) {
-      throw new Error('Job not found or access denied');
-    }
-
-    // For simple status-only updates, skip complex schema validation
-    const isStatusOnlyUpdate = Object.keys(data).length === 1 && 'status' in data;
-    console.log('[updateJob] Is status-only update:', isStatusOnlyUpdate);
-
-    let validatedData;
-    if (isStatusOnlyUpdate && data.status) {
-      // Direct validation for status updates from kanban
-      console.log('[updateJob] Using direct status validation:', data.status);
-      validatedData = { status: data.status };
-    } else {
-      // Full schema validation for other updates
-      console.log('[updateJob] Using full schema validation');
-      validatedData = updateJobSchema.parse(data);
-    }
-
-    const job = await prisma.job.update({
-      where: {
-        id: validatedId,
-        userId,
-      },
-      data: validatedData,
-    });
-
-    revalidatePath('/jobs');
-    revalidatePath('/kanban');
-    revalidatePath('/dashboard');
-    return job;
-  } catch (error) {
-    console.error('[updateJob] Error:', error);
-    throw error;
+  if (!existingJob) {
+    throw new Error('Job not found or access denied');
   }
+
+  const job = await prisma.job.update({
+    where: {
+      id: validatedId,
+      userId,
+    },
+    data: validatedData,
+  });
+
+  revalidatePath('/jobs');
+  revalidatePath('/kanban');
+  revalidatePath('/dashboard');
+  return job;
 }
 
 export async function deleteJob(id: string) {
