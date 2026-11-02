@@ -1,7 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 import { config } from 'dotenv';
 
-config({ path: '.env.test', quiet: true });
+// override: .env.test must win over shell variables (e.g. production keys/DB)
+config({ path: '.env.test', quiet: true, override: true });
 
 const PORT = Number(process.env.E2E_PORT ?? 3100);
 const baseURL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`;
