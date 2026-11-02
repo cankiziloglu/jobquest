@@ -1,4 +1,4 @@
-import { PrismaClient } from '@/lib/generated/prisma';
+import { getDb } from '@/lib/db';
 
-// Separate client used by tests to arrange/inspect database state directly
-export const prisma = new PrismaClient();
+// Same client the server actions use; used by tests to arrange/inspect state
+export const prisma = getDb();

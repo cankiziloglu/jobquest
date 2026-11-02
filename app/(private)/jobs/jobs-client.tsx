@@ -6,7 +6,7 @@ import { DataTable } from "./data-table";
 import { JobDialog } from "./job-dialog";
 import { JobDetailsDialog } from "./job-details-dialog";
 import { deleteJob } from "@/server/actions";
-import { Job, Note } from "@/lib/generated/prisma";
+import { Job, Note } from "@/lib/generated/prisma/browser";
 import { useRouter } from "next/navigation";
 
 interface JobsPageProps {

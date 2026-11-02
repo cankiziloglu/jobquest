@@ -4,7 +4,7 @@ import { useDroppable } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { JobWithNotes, JobCard } from './job-card';
-import { JobStatus } from '@/lib/generated/prisma';
+import { JobStatus } from '@/lib/generated/prisma/browser';
 import { Badge } from '@/components/ui/badge';
 
 interface KanbanColumnProps {

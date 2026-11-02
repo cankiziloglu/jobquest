@@ -5,8 +5,8 @@ import type { ReactNode } from 'react';
 let signedIn = false;
 
 vi.mock('@clerk/nextjs', () => ({
-  SignedIn: ({ children }: { children: ReactNode }) => (signedIn ? <>{children}</> : null),
-  SignedOut: ({ children }: { children: ReactNode }) => (signedIn ? null : <>{children}</>),
+  Show: ({ when, children }: { when: 'signed-in' | 'signed-out'; children: ReactNode }) =>
+    (when === 'signed-in') === signedIn ? <>{children}</> : null,
   SignInButton: ({ children }: { children: ReactNode }) => <>{children}</>,
   UserButton: () => <div data-testid='user-button' />,
 }));
