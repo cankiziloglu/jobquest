@@ -71,6 +71,7 @@ export function KanbanColumn({ id, title, jobs, onJobClick }: KanbanColumnProps)
   return (
     <div
       ref={setNodeRef}
+      data-testid={`kanban-column-${id}`}
       className={`flex flex-col bg-muted/30 rounded-lg p-3 h-fit min-h-[200px] md:min-h-[400px] transition-colors ${
         isOver ? 'bg-muted/60 ring-2 ring-primary/20' : ''
       }`}
