@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Job, JobStatus, WorkArrangement, Note } from '@/lib/generated/prisma/browser';
+import { Job, JobStatus, WorkArrangement, Note } from '@prisma/client';
 import {
   ArrowUpDown,
   MoreVertical,

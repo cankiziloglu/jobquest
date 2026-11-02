@@ -1,5 +1,5 @@
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '../../lib/generated/prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 export const E2E_PREFIX = '[e2e]';
 

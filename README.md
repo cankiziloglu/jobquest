@@ -88,7 +88,7 @@ A modern, minimalist job application tracker built for software developers. JobQ
 
 ### Prerequisites
 
-- Node.js 18.x or later
+- Node.js 22.x or later
 - pnpm (install via `npm install -g pnpm`)
 - PostgreSQL database (Neon.tech recommended)
 - Clerk account for authentication
@@ -118,16 +118,19 @@ pnpm install
 npx prisma generate
 ```
 
-2. Run database migrations:
+2. Apply database migrations:
 
 ```bash
-npx prisma migrate dev
+pnpm db:migrate
 ```
 
-3. (Optional) Seed sample data:
+> Existing database created with `prisma db push` before migrations were added?
+> Mark the initial migration as applied instead: `npx prisma migrate resolve --applied 0_init`
+
+3. (Optional) Seed sample data for a Clerk user:
 
 ```bash
-pnpm seed
+SEED_USER_ID=user_xxx pnpm seed
 ```
 
 4. (Optional) View database in Prisma Studio:
@@ -153,10 +156,54 @@ pnpm build
 pnpm start
 ```
 
+## Testing
+
+```bash
+pnpm test:unit          # schemas, auth helpers, components (jsdom)
+pnpm test:db:push       # create schema in the test DB from .env.test
+pnpm test:integration   # server actions against a real Postgres
+pnpm test:e2e           # Playwright, builds and starts the app
+```
+
+Copy `.env.test.example` to `.env.test`. Integration tests only need `DATABASE_URL`
+(a throwaway local Postgres; tables are wiped between tests). E2E tests also need
+Clerk **development** keys and `E2E_CLERK_USER_EMAIL`, an existing user in that
+Clerk instance; sign-in uses `@clerk/testing` tokens, so no password/OTP is needed.
+Set `E2E_BASE_URL` to run the e2e suite against a deployed URL.
+
+## Deploying to Cloudflare Workers
+
+The app runs on Cloudflare Workers via [OpenNext](https://opennext.js.org/cloudflare).
+Postgres (Neon) is reached over TCP with the `pg` driver; a Prisma client is created per
+request because Workers can't reuse sockets across requests.
+
+```bash
+pnpm cf:preview   # build + run locally in workerd (secrets from .dev.vars)
+pnpm cf:deploy    # build + deploy
+```
+
+One-time setup:
+
+1. Authenticate Wrangler: set `CLOUDFLARE_API_TOKEN` (token with *Workers Scripts: Edit*)
+   and `CLOUDFLARE_ACCOUNT_ID`, or run `npx wrangler login`.
+2. Set runtime secrets:
+   ```bash
+   npx wrangler secret put DATABASE_URL
+   npx wrangler secret put CLERK_SECRET_KEY
+   ```
+3. `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` is inlined at build time, so it must be in the
+   environment (or `.env`) when running `pnpm cf:deploy`.
+4. In the Clerk dashboard, add the `*.workers.dev` (or custom) domain for production instances.
+
+Health check: `GET /api/health` returns `{ "ok": true, "db": "up" }`.
+
+> `middleware.ts` is intentionally kept instead of Next 16's `proxy.ts`: OpenNext doesn't
+> officially support Node.js-runtime middleware yet.
+
 ## Authentication Flow
 
 1. Unauthenticated users land on public homepage
-2. Clerk handles sign-up/sign-in with email or OAuth providers
+2. Clerk handles sign-up/sign-in (email verification code / OTP)
 3. Middleware protects `/jobs`, `/kanban`, `/dashboard` routes
 4. All database queries automatically scoped to authenticated user
 5. User data completely isolated - no cross-user data access

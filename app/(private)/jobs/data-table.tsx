@@ -27,7 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { JobStatus, WorkArrangement } from '@/lib/generated/prisma/browser';
+import { JobStatus, WorkArrangement } from '@prisma/client';
 import { Search, Filter, Plus } from 'lucide-react';
 
 interface DataTableProps<TData extends RowData> {

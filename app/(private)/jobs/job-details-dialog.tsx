@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Job, Note, JobStatus, WorkArrangement } from '@/lib/generated/prisma/browser';
+import { Job, Note, JobStatus, WorkArrangement } from '@prisma/client';
 import { createNote, updateNote, deleteNote } from '@/server/actions';
 import { updateNoteSchema } from '@/lib/schemas';
 import {

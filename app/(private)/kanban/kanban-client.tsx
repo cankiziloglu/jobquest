@@ -19,7 +19,7 @@ import { KanbanColumn } from './kanban-column';
 import { JobDetailsDialog } from '../jobs/job-details-dialog';
 import { JobDialog } from '../jobs/job-dialog';
 import { updateJob, deleteJob } from '@/server/actions';
-import { Job, JobStatus, Note } from '@/lib/generated/prisma/browser';
+import { Job, JobStatus, Note } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';

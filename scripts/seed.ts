@@ -3,7 +3,7 @@ import {
   PrismaClient,
   JobStatus,
   WorkArrangement,
-} from '../lib/generated/prisma/client';
+} from '@prisma/client';
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL! }),

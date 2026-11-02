@@ -1,0 +1,3 @@
+# Secrets for `pnpm cf:preview` (local workerd). Copy to .dev.vars.
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/jobquest_test
+CLERK_SECRET_KEY=sk_test_xxx

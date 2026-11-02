@@ -1,6 +1,6 @@
 import { cache } from 'react';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '@/lib/generated/prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 function createClient() {
   const connectionString = process.env.DATABASE_URL;

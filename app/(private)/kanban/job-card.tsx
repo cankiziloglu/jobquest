@@ -2,7 +2,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Job, Note, WorkArrangement } from '@/lib/generated/prisma/browser';
+import { Job, Note, WorkArrangement } from '@prisma/client';
 import { MapPin, Briefcase } from 'lucide-react';
 
 export type JobWithNotes = Job & { notes: Note[] };

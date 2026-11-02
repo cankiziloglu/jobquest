@@ -1,9 +1,12 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+// prisma-client-js (generated into node_modules) is used deliberately: the
+// @prisma/client package resolves a workerd-specific build via export
+// conditions, which OpenNext relies on for Cloudflare Workers, while Node.js
+// (dev, tests) gets the regular build.
 generator client {
-  provider = "prisma-client"
-  output   = "../lib/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 // Connection URL is configured in prisma.config.ts

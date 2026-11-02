@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Job, JobStatus, WorkArrangement, Note } from '@/lib/generated/prisma/browser';
+import { Job, JobStatus, WorkArrangement, Note } from '@prisma/client';
 import { createJob, updateJob } from '@/server/actions';
 import { useRouter } from 'next/navigation';
 import {

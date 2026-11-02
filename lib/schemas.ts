@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { JobStatus, WorkArrangement } from '@/lib/generated/prisma/browser';
+import { JobStatus, WorkArrangement } from '@prisma/client';
 
 // URL validation helper
 const urlSchema = z
