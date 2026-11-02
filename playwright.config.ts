@@ -20,6 +20,11 @@ export default defineConfig({
     launchOptions: process.env.PW_CHROMIUM_PATH
       ? { executablePath: process.env.PW_CHROMIUM_PATH }
       : undefined,
+    // Optional: for sandboxes that only allow egress through an HTTPS proxy
+    proxy: process.env.E2E_BROWSER_PROXY
+      ? { server: process.env.E2E_BROWSER_PROXY, bypass: 'localhost,127.0.0.1' }
+      : undefined,
+    ignoreHTTPSErrors: process.env.E2E_IGNORE_HTTPS_ERRORS === '1',
   },
   projects: [
     { name: 'global setup', testMatch: /global\.setup\.ts/, teardown: 'global teardown' },

@@ -34,11 +34,12 @@ test('signed-in users are redirected from / to the dashboard', async ({ page }) 
 
 test('header navigation works', async ({ page }) => {
   await page.goto('/dashboard');
-  await page.getByRole('link', { name: 'Jobs' }).click();
+  const nav = page.getByRole('banner').getByRole('navigation');
+  await nav.getByRole('link', { name: 'Jobs' }).click();
   await expect(page.getByRole('heading', { name: 'Job Applications' })).toBeVisible();
-  await page.getByRole('link', { name: 'Kanban' }).click();
+  await nav.getByRole('link', { name: 'Kanban' }).click();
   await expect(page.getByRole('heading', { name: 'Kanban Board' })).toBeVisible();
-  await page.getByRole('link', { name: 'Dashboard' }).click();
+  await nav.getByRole('link', { name: 'Dashboard' }).click();
   await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
 });
 
@@ -141,7 +142,7 @@ test('open job details from a kanban card', async ({ page }) => {
   await page.getByTestId('kanban-column-APPLIED').getByText(editedTitle).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('heading', { name: editedTitle })).toBeVisible();
-  await expect(dialog.getByText('APPLIED')).toBeVisible();
+  await expect(dialog.getByText('APPLIED', { exact: true })).toBeVisible();
 });
 
 test('delete a job', async ({ page }) => {

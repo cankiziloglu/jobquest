@@ -23,12 +23,14 @@ for (const route of ['/dashboard', '/jobs', '/kanban']) {
   });
 }
 
-test('sign-in page shows the email sign-in form', async ({ page }) => {
+// Available sign-in methods (email OTP, OAuth) are Clerk dashboard settings,
+// so only assert that Clerk's form renders.
+test('sign-in page renders the Clerk sign-in form', async ({ page }) => {
   await page.goto('/sign-in');
-  await expect(page.getByLabel(/email address/i)).toBeVisible();
+  await expect(page.getByRole('heading', { name: /sign in to jobquest/i })).toBeVisible();
 });
 
-test('sign-up page renders', async ({ page }) => {
+test('sign-up page renders the Clerk sign-up form', async ({ page }) => {
   await page.goto('/sign-up');
-  await expect(page.getByLabel(/email address/i)).toBeVisible();
+  await expect(page.getByRole('heading', { name: /create your account/i })).toBeVisible();
 });
