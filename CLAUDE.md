@@ -130,7 +130,7 @@ pnpm cf:deploy        # build + deploy to Workers
    - Use React Hook Form with Zod resolver
    - Validate on client and server
 5. **UI components**: Use shadcn/ui patterns, follow New York variant style
-6. **Data tables**: Use TanStack Table v8 with shadcn DataTable component
+6. **Data tables**: Use TanStack Table v9 (`useTable` + `jobTableFeatures`) with the shadcn DataTable component
 
 ## Code Conventions
 
@@ -138,3 +138,8 @@ pnpm cf:deploy        # build + deploy to Workers
 - **Naming**: PascalCase for components, kebab-case for files
 - **Imports**: External packages → internal modules → types
 - **Path alias**: `@/*` points to project root
+
+## Deployment
+
+- Pushes to `main` auto-deploy to Cloudflare Workers via Workers Builds (`pnpm cf:deploy`); production is https://jobquest.cgk.dev
+- Database migrations are not run by the build: apply them with `pnpm db:migrate` before merging schema changes
